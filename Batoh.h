@@ -34,19 +34,18 @@ private:
 	int dp_best_price;
 	int **dp_matrix; // pomocna matica pre potreby dynamickeho programovania (no_of_elements+1)*(max_weight+1)
 
-/*	
 	bool *fptas_best_array; // FPTAS algoritmus
 	int fptas_best_price;
+	int fptas_best_weight;
 	int **fptas_matrix;
-	int *fptas_weight; // preratane pole vah jednotlivych predmetov
-	int fptas_max_weight; // preratana maximalna nostnost batohu
-*/	
+	int *fptas_price; // preratane pole cien jednotlivych predmetov
+	int fptas_price_sum;
 	
 	double bf_time; // trvanie jednotlivych variant
 	double cv_time;
 	double bb_time;
 	double dp_time;
-//	double fptas_time;
+	double fptas_time;
 	double epsilon; // relativna chyba CV heuristiky
 public:
 	Batoh (int id, int no_of_elements, int max_weight);
@@ -67,10 +66,9 @@ public:
 	void bbObtainBestArray();
 	void dynamicProgramming();
 	void showDPMatrix() const;
-/*
 	void fptas(int no);
 	void fptasDP();
-*/	
+	
 	int getId() {return this->id;}
 	int getBFPrice() {return this->bf_best_price;}
 	double getBFTime() {return this->bf_time;}
@@ -80,6 +78,8 @@ public:
 	double getBBTime() {return this->bb_time;}
 	int getDPPrice() {return this->dp_best_price;}
 	double getDPTime() {return this->dp_time;}
+	int getFPTASPrice() {return this->fptas_best_price;}
+	double getFPTASTime() {return this->fptas_time;}
 	
 	void setEpsilon(double epsilon) {this->epsilon = epsilon;}
 };

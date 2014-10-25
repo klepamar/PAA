@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <assert.h>
 #include <queue>
+#include <limits.h>
 
 #include "Batoh.h"
 #include "ABC.cpp"
@@ -55,11 +56,10 @@ Batoh::Batoh (int id, int no_of_elements, int max_weight)
 	{
 		dp_matrix[i] = new int [this->max_weight+1];
 	}
-
-/*	
-	this->fptas_weight = new int [this->no_of_elements]; // FPTAS algoritmus; vyplnovanie fptas_matrix az vo vnutri funkcie fptas(int no)
+	
+	this->fptas_price = new int [this->no_of_elements]; // FPTAS algoritmus
 	this->fptas_best_array = new bool [this->no_of_elements];
-*/
+	this->fptas_price_sum = 0;
 }
 
 Batoh::~Batoh()
@@ -88,15 +88,10 @@ Batoh::~Batoh()
 	}
 	delete [] this->dp_matrix;
 	
-	//cistenie FPTAS alogitmu
-/*	delete [] fptas_weight;
-	delete [] fptas_best_array;
-	for (int i=0; i<=this->no_of_elements; i++)
-	{
-		delete [] this->fptas_matrix[i];
-	}
-	delete [] this->fptas_matrix;
-*/
+	//cistenie FPTAS alogitmu; dealokacia fptas_matrix priamo v procedure fptas
+	delete [] this->fptas_price;
+	delete [] this->fptas_best_array;
+
 }
 
 void Batoh::fillInformation (istream &in)
@@ -374,6 +369,7 @@ void Batoh::dynamicProgramming()
 		for (int j=0; j<=this->max_weight; j++)
 			this->dp_matrix[i][j] = 0;
 
+	// dekompozicia podla kapacity
     for(int i=1;i<=this->no_of_elements; i++)
     {
 		for(int j=1;j<=this->max_weight; j++)
@@ -417,87 +413,107 @@ void Batoh::dynamicProgramming()
 	this->dp_time=end-start;	
 }
 
-/*
-
 void Batoh::fptas(int no)
 {
-	// "no" vyjadruje pocet LSB bitov, ktorych cenu budeme zanedbavat (bit shift doprava)
-	// potrebujem vypocitat novu maximalnu nosnost = fptas_max_weight
-	this->fptas_max_weight = this->max_weight >> no;
+	double start,end;
+	start=omp_get_wtime(); // start measuring time
 	
-	// alokuj pole o velkosti (no_of_elements+1) x (fptas_max_weight+1)
-	this->dp_matrix = new int* [this->no_of_elements+1];
-	for (int i=0; i<=this->no_of_elements; i++)
+	// prepocitanie cien jednotlivych predmetov; posunutie o "no" bitov doprava
+	// vypocet sumy cien jednotlivych predmetov
+	for (int i=0; i<this->no_of_elements; i++)
 	{
-		dp_matrix[i] = new int [this->fptas_max_weight+1];
+		this->fptas_price[i] = this->price[i] >> no;
+		this->fptas_price_sum += this->fptas_price[i];
 	}
 	
-	// vynuluj prvky pomocnej matice; nulty riadok (ziaden element) a nulty stlpec (nulova vaha) budu nulove
+	// alokujeme potrebne 2D pole (no_of_elements+1) x (suma cien predmetov+1)
+	this->fptas_matrix = new int* [this->no_of_elements+1];
 	for (int i=0; i<=this->no_of_elements; i++)
-		for (int j=0; j<=this->fptas_max_weight; j++)
-			this->fptas_matrix[i][j] = 0;
+	{
+		fptas_matrix[i] = new int [this->fptas_price_sum+1];
+	}	
 	
-	// prepocitaj vahu kazdeho elementu a uloz ju do pola fptas_weight
-	for (int i=0; i<this->no_of_elements; i++)
-		this->fptas_weight[i] = this->weight[i] >> no;
-		
-	fptasDP(); // run dynamic programming algorithm on fptas-data
+	fptasDP();
+	
+	// vysledok posun spat o "no" bitov dolava
+	this->fptas_best_price = this->fptas_best_price << no;
+	
+	// dealokacia potrebneho 2D pola 
+	for (int i=0; i<=this->no_of_elements; i++)
+	{
+		delete [] this->fptas_matrix[i];
+	}
+	delete [] this->fptas_matrix;	
+	
+    end=omp_get_wtime(); // end of time measurement
+	this->fptas_time=end-start;
 }
 
 void Batoh::fptasDP()
 {
-	double start,end;
-	start=omp_get_wtime(); // start measuring time	
-
-	int option1,option2;
-
-	// pomocna matica dp_matrix [no_of_elements+1][max_weight+1]
-	// pokial vezmeme prvych "i" prvkov (hodnota v riadku), vzhladom k urcenej vahe (hodnota v stlpci) hladame maximalnu cenu vyberu
+	int i, j, index, w, pom;
 	
-    for(int i=1;i<=this->no_of_elements; i++)
-    {
-		for(int j=1;j<=this->fptas_max_weight; j++)
-        {
-			if (this->fptas_weight[i-1] > j)
+	for (int i=0; i<=this->no_of_elements; i++)
+		for (int j=0; j<=this->fptas_price_sum; j++)
+			this->fptas_matrix[i][j] = 0;
+
+	for(i=1;i<=this->fptas_price_sum;i++)
+	{
+		this->fptas_matrix[0][i] = INT_MAX;
+	}
+
+	// dekompozicia podla ceny
+	for(i=1; i<=this->no_of_elements; i++)
+	{
+		for(j=0; j<=this->fptas_price_sum; j++)
+		{
+			if((j-this->fptas_price[i-1])>=0)
 			{
-				this->fptas_matrix[i][j] = this->fptas_matrix[i-1][j];
+				if(this->fptas_matrix[i-1][j-this->fptas_price[i-1]]!= INT_MAX)
+				{
+					pom = this->fptas_matrix[i-1][j-this->fptas_price[i-1]] + this->weight[i-1];
+				} 
+				else 
+				{
+					pom = INT_MAX;
+				}
 			}
 			else
 			{
-				option1 = this->fptas_matrix[i-1][j]; // maximalna cena vyberu pre (i-1) elementov
-				option2 = this->fptas_matrix[i-1][j-this->fptas_weight[i-1]] + this->price[i-1];
-				this->fptas_matrix[i][j] = max(option1, option2); // maximalizujeme cenu
+				pom = INT_MAX;
 			}
+ 			this->fptas_matrix[i][j]= pom > this->fptas_matrix[i-1][j] ? this->fptas_matrix[i-1][j] : pom;
 		}
 	}
-	
-	// hodnota v poslednom riadku ("i" elementov) a poslednom stlpci ("j" = max.vaha) predstavuje maximalizovanu cenu vyberu
-	this->fptas_best_price = this->fptas_matrix[this->no_of_elements][this->fptas_max_weight];
-	
-	//cout << "Displaying matrix after calculation..." << endl;
-	//showDPMatrix();
-	
-    int i = this->no_of_elements;
-    int j = this->fptas_max_weight;
-    while (i>0)
-    {
-		if (this->fptas_matrix[i][j] != this->fptas_matrix[i - 1][j])
-        {
-            this->fptas_best_array[i-1]=1;
-            j -= this->fptas_weight[i-1];
-        }
-        else
-        {
-			this->fptas_best_array[i-1]=0;
-		}
-        i -= 1;
-	}
-	
-    end=omp_get_wtime(); // end of time measurement
-	this->fptas_time=end-start;	
-}
 
-*/
+	
+	// vysledok - v riadku cislo "no_of_elements" hladame prvu kapacitu mensiu nez max_weight
+	for (int j=fptas_price_sum; j>=0; j--)
+	{
+		if (this->fptas_matrix[no_of_elements][j] <= this->max_weight)
+		{
+			this->fptas_best_weight = this->fptas_matrix[no_of_elements][j];
+			this->fptas_best_price = j;
+			break;			
+		}	
+	}
+	
+	i=this->fptas_best_price;
+	
+	// spatny chod - vyplname pole fptas_best_array
+	for(int j=this->no_of_elements; j>0; j--)
+	{
+		if(this->fptas_matrix[j][i] == this->fptas_matrix[j-1][i])
+		{
+			this->fptas_best_array[j-1]=0;
+		}
+		else
+		{
+			this->fptas_best_array[j-1]=1;
+			i-=this->price[j-1];
+		}
+	}
+}
 
 void Batoh::bbSearchForSpecialCase()
 {
