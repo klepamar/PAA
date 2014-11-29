@@ -49,7 +49,23 @@ private:
 	double bb_time;
 	double dp_time;
 	double fptas_time;
+	double sa_time;
 	double epsilon; // relativna chyba CV heuristiky
+	
+	/*parametre simulovaneho ochladzovania */
+	double INITIAL_TEMPERATURE;
+	double FINAL_TEMPERATURE;
+	double NUMBER_OF_STEPS;
+	double COOLING_FACTOR;
+	
+	/*dalsie premenne pre potreby simuloveho ochladzovania*/
+	bool* sa_best_array;
+	bool* sa_array;
+	double sa_epsilon;
+	int sa_array_price;
+	int sa_array_weight;
+	int sa_best_price;
+	
 public:
 	Batoh (int id, int no_of_elements, int max_weight);
 	virtual ~Batoh();
@@ -66,6 +82,8 @@ public:
 	void branchAndBound2 ();
 	void branchAndBound2_r (int current_n, int current_weight, int current_price, int remain_price);
 	void branchAndBound();
+	void simulatedAnnealing();
+	void saGenerateNewState (int current_temperature);
 	float bound(Node *u);
 	void bbSearchForSpecialCase();
 	void bbObtainBestArray();
@@ -80,6 +98,7 @@ public:
 	int getFptasI() {return this->fptas_i;}
 	int getBBCounter() {return this->bb_counter;}
 	int getBFPrice() {return this->bf_best_price;}
+	int getSAPrice() {return this->sa_best_price;}
 	double getBFTime() {return this->bf_time;}
 	int getCVPrice() {return this->cv_best_price;}
 	double getCVTime() {return this->cv_time;}
@@ -89,6 +108,7 @@ public:
 	double getDPTime() {return this->dp_time;}
 	int getFPTASPrice() {return this->fptas_best_price;}
 	double getFPTASTime() {return this->fptas_time;}
+	double getSATime() {return this->sa_time;}
 	
 	void setEpsilon(double epsilon) {this->epsilon = epsilon;}
 };

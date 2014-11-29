@@ -11,6 +11,7 @@
 \usepackage{multirow}
 \usepackage{mathtools}
 \usepackage{listings}
+\usepackage{listings}
 \usepackage{pdfpages}
 \usepackage{amsmath}
 \usepackage{lscape}
@@ -27,7 +28,7 @@
 
 \begin{document}
 
-\title{Problém batohu - 3. úloha \\[5mm] MI-PAA, zimný semester 2014}
+\title{Problém batohu - 4. úloha \\[5mm] MI-PAA, zimný semester 2014}
 \author{Martin Klepáč}
 \date{\today}
 
@@ -58,319 +59,159 @@ Výstupom algoritmu je vektor \emph{x}, ktorý udáva prítomnosť/neprítomnos�
 
 \section{Úvod}
 
-V tejto časti sa pozrieme na experimentálne vyhodnotenie výsledkov algoritmov, ktoré sme implementovali v predchádzajúcich dvoch iteráciách. Pre potreby tejto úlohy budeme uvažovať o algoritmoch dynamického programovania, branch and bound s použitím orezávania stavového priestoru a heuristika cena-váha. K tomu budeme potrebovať generátor náhodných inštancií, ktorý budeme parametrizovať tak, že v každom momente budeme meniť hodnotu práve 1 parametru a vštky ostatné zachováme konštantné.
+V poslednej úlohe venovanej problému batohu je cieľom otestovať si nasadenie algoritmu simulovaného ochladzovania respektíve genetického algoritmu na tento problém. Okrem samotnej implementácie je potrebné experimentálne zhodnotiť výkonnosť algoritmu pri zmene parametrov.
 
-\section{Predpoklady}
+\section{Simulované ochladzovanie}
 
-Algoritmus dynamického programania z predchádzajúcej iterácie bol založený na dekompozícii podľa kapacity. Z toho vychádza, že pokiaľ budeme meniť hodnotu kapacity batohu, doba behu algoritmu by sa mala meniť lineárne - zložitosť je závislá lineárne ako na veľkosti inštancie, tak aj na nosnosti batohu - $O(nM)$
+Pre túto úlohu som si vybral algoritmus simulovaného ochladzovania, ktorý mi pripadá jednoduchší na pochopenie. Simulované ochladzovanie predstavuje lokálnu metódu prehľadávania stavového priestoru. Metóda umožňuje s určitou pravdepodobnosťou prijať aj stav horší od aktuálneho stavu, ale táto pravdepodobnosť klesá s postupným ochladzovaním, čo v konečnom dôsledku zaisťuje konvergenciu algoritmu. Pseudokód metódy vyzerá nasledovne:
 
-V prípade heuristiky cena-váha neočakávam, že doba behu je závislá na akomkoľvek parametri s výnimkou usporiadanosti vstupných dát, a to z toho dôvodu, že po usporiadaní algoritmus lineárne prechádza zoznamom predmetov, až kým nedôjde k naplneniu batohu. Dalo by sa namietať, že s menšou nosnosťou batohu sa doň zmestí menší počet vecí, a teda prechod poľom usporiadaných predmetov sa zrýchli. Vzhľadom na to, že zložitosť usporiadania $O(n\log{}n)$ je rádovo vyššia ako zložitosť prechodom poľa $O(n)$, je tento faktor zanedbateľný.
+\begin{lstlisting}
 
-Nakoniec, v prípade algoritmu branch and bound očakávam, že sa prejaví schopnosť efektívne orezať stavový priestor. To znamená, že v prípade obmedzenej nosnosti batohu voči váham predmetov dokáže algoritmus rýchlo odstrániť neperspektívne vetvy, a tým zrýchliť trvanie behu. 
+function simulatedAnnealing ()
+{
+  current_temp = INITIAL_TEMP;
+  state = INITIAL_STATE;
+  while (current_temp > LOWER_BOUND_TEMP)
+  {
+    steps = NO_OF_STEPS;
+    while (steps > 0)
+    {
+      state = newState (state, current_temp);
+      if (state > bestState)
+      {
+        bestState = state;
+      }
+      steps--;
+    }
+    current_temp = cool (current_temp)
+  }
+}
 
-V súvislosti s heuristikou cena-váha a charakterom predmetov vo výbere nie som schopný vysloviť žiadne predpoklady.
+\end{lstlisting}
+
+\emph{Cool} je funkcia, ktorá zníži aktuálnu teplotu aplikovaním koeficientu ochladzovania \emph{COOLING\_FACTOR}. \emph{NewState} je funkcia, ktorá vracia nejaký nový stav, pričom pravdepodobnosť, že funkcia vráti horší stav ako aktuálny klesá s poklesom aktuálnej teploty \emph{current\_temp}. Jej implementácia je zhodná so slidom číslo 13 prednášky číslo 8 - Simulované ochlazování. Výstupom algoritmu je \emph{bestState} - najlepší nájdený výber.
 
 \section{Výsledky}
 
-Školský generátor, pokiaľ nie je inak napísané, som spúšťal s nasledujúcimi parametrami:
+Merania prebiehali na 64-bitovom Linuxovom hostiteľovi použitom v predchádzajúcich úlohách. Pre potreby vyladenia algoritmu som experimentálne zisťoval hodnoty počiatočnej a koncovej teploty (v pseudokóde vyššie označené ako \emph{INITIAL\_TEMP} resp. \emph{LOWER\_BOUND\_TEMP}), ďalej koeficient ochladzovania \emph{COOLING\_FACTOR} a počet iterácií vnútorného cyklu - \emph{NO\_OF\_STEPS}. 
 
-\begin{itemize}
-\item \emph{m} = 0.5
-\item \emph{d} = 0
-\item \emph{k} = 1
-\item \emph{w-max} = 250
-\item \emph{c-max} = 250
-\item \emph{n} = 25
-\item \emph{N} = 300
-\end{itemize}
-
-Na nasledujúcich riadkoch popíšem závislosti, ktoré som pomocou generátora objavil. Pre hore uvedenú trojicu algoritmov budem merať, ako sa mení priemerná doba behu, kým pre heuristiku cena-váha budem ďalej sledovať zmenu relatívnej chyby s meniacim sa parametrom. Závislosť na konkrétnom parametri vždy vyjadrím formou dvojice tabuliek a grafov.
-
-V prvom kroku sme za variabilnú zložku určili \textbf{maximálnu váhu predmetu} na vstupe. Z grafu \ref{gr:graf1} je zrejmá lineárna závislosť zložitosti dynamického programovania na maximálnej váhe predmetu. Lineárna závislosť je dôsledkom dekompozície podľa kapacity batohu (viz kapitola Predpoklady) a ďalej tým, že nosnosť batohu je funkcia súčtu váh predmetov na vstupe. Trvanie metódy branch and bound a heuristiky vykazuje drobné fluktuácie, ale bez nejakého dlhodého trendu. Podobná úvaha platí pre relatívnu chybu heuristiky, ktorá sa pohybuje jemne nad pol percentom. Jemné zvýšenie rel. chyby nastáva pre \emph{w-max} sa približne rovná \emph{c-max}, t.j. vtedy keď pomer cena-váha pre jednotlivé predmety sa rovná 1. Relevantné grafy \ref{gr:graf1} a \ref{gr:graf2} a tabuľky \ref{tab1} a \ref{tab2}.
+Merania prebiehali iteratívne, čo znamená, že najskôr som zmeral závislosť doby behu algoritmu a priemernej/maximálnej relatívnej chyby v závislosti od variabilného koeficientu ochladzovania (ostatné premenné zostali zafixované s určitými hodnotami). Následne som z výsledkov odhadol optimálny koeficient ochladzovania a začal študovať závislosť od počiatočnej teploty. K tomu bolo potrebné zafixovať ostatné premenné na určitých hodnotách s tým, že optimálny koeficient ochladzovania som už mal experimentálne zistený. Takto som vždy jednou sadou merania zistil optimálnu hodnotu ďalšieho parametru. Konečne, po zistení optimálnych hodnôt všetkých parametrov som všetky experimenty vykonal ešte raz - jednu premennú som menil a všetky ostatné boli zafixované s použítím zisteného optima. Výsledky pre veľkosť inštancie \emph{n=40} uvádzam v tabuľkách \ref{tab1} až \ref{tab4} resp. v grafoch \ref{gr:graf1} až \ref{gr:graf4}. Graf \ref{gr:graf5} zobrazuje závislosť ceny riešenia od aktuálneho čísla iterácie pre jednú konkrétnu inštanciu zo vzorky inštancií pre n=40. 
 
 \begin{table}[htb!]\centering
 	\begin{tabularx}{\textwidth}{ | X | X | X | X |}
 	  \hline                       
-							& \textbf{BB} 	& \textbf{DP} 	& \textbf{CV} 	\\ \hline
-		\textbf{w-max=40}	&	0.002 405	&	0.000 102	&	0.000 004 020	\\ \hline
-		\textbf{w-max=60}	&	0.002 726	&	0.000 153	&	0.000 004 520	\\ \hline
-		\textbf{w-max=80}	&	0.002 626	&	0.000 201	&	0.000 004 600	\\ \hline
-		\textbf{w-max=100}	&	0.002 750	&	0.000 249	&	0.000 004 610	\\ \hline
-		\textbf{w-max=125}	&	0.002 757	&	0.000 308	&	0.000 004 620	\\ \hline
-		\textbf{w-max=150}	&	0.003 343	&	0.000 353	&	0.000 004 880	\\ \hline
-		\textbf{w-max=175}	&	0.002 734	&	0.000 437	&	0.000 005 090	\\ \hline
-		\textbf{w-max=200}	&	0.002 957	&	0.000 507	&	0.000 005 020	\\ \hline
-		\textbf{w-max=250}	&	0.002 739	&	0.000 636	&	0.000 005 330	\\ \hline
-		\textbf{w-max=300}	&	0.002 606	&	0.000 765	&	0.000 005 010	\\ \hline
-		\textbf{w-max=350}	&	0.002 785	&	0.000 889	&	0.000 005 310	\\ \hline
-		\textbf{w-max=400}	&	0.002 653	&	0.001 025	&	0.000 005 330	\\ \hline
-		\textbf{w-max=450}	&	0.002 649	&	0.001 133	&	0.000 005 150	\\ \hline								
-		\textbf{w-max=500}	&	0.002 698	&	0.001 259	&	0.000 005 410	\\ \hline								
+		\textbf{Koeficient ochladzovania}	& \textbf{Doba behu [s]} 	& \textbf{Priem. rel. chyba [\%]} 	& \textbf{Max. rel. chyba [\%]} 	\\ \hline
+		\textbf{c=0.800}	&	0.012 644	&	0.111	&	2.3372	\\ \hline
+		\textbf{c=0.825}	&	0.014 974	&	0.088 	&	2.3372	\\ \hline
+		\textbf{c=0.850}	&	0.018 121	&	0.058	&	2.3372	\\ \hline
+		\textbf{c=0.875}	&	0.021 101	&	0.048	&	2.3372	\\ \hline
+		\textbf{c=0.900}	&	0.026 915	&	0.058	&	2.3372	\\ \hline
+		\textbf{c=0.925}	&	0.037 111	&	0.054	&	2.3372	\\ \hline
+		\textbf{c=0.950}	&	0.055 780	&	0.047	&	2.3372	\\ \hline
+		\textbf{c=0.975}	&	0.110 550	&	0.052	&	2.3372	\\ \hline
 	\end{tabularx}
-\caption{Závislosť trvania behu algoritmov BB,DP a heuristiky od maximálnej hmotnosti [s]}
+\caption{Závislosť trvania doby behu a relatívnej chyby simulovaného ochladzovania od koeficientu ochladzovania}
 \label{tab1}
 \end{table}
 
 \begin{table}[htb!]\centering
-	\begin{tabularx}{\textwidth}{ | X | X | }
+	\begin{tabularx}{\textwidth}{ | X | X | X | X |}
 	  \hline                       
-							& \textbf{CV} 	\\ \hline
-		\textbf{w-max=40}	&	0.55638
-			\\ \hline
-		\textbf{w-max=60}	&	0.61646
-			\\ \hline
-		\textbf{w-max=80}	&	0.54155
-			\\ \hline
-		\textbf{w-max=100}	&	0.50933
-			\\ \hline
-		\textbf{w-max=125}	&	0.53428
-			\\ \hline
-		\textbf{w-max=150}	&	0.49504
-			\\ \hline
-		\textbf{w-max=175}	&	0.50213
-			\\ \hline
-		\textbf{w-max=200}	&	0.54508
-			\\ \hline
-		\textbf{w-max=250}	&	0.58260
-			\\ \hline
-		\textbf{w-max=300}	&	0.59298
-			\\ \hline
-		\textbf{w-max=350}	&	0.60938
-			\\ \hline
-		\textbf{w-max=400}	&	0.54125
-			\\ \hline
-		\textbf{w-max=450}	&	0.53188
-			\\ \hline								
-		\textbf{w-max=500}	&	0.52994
-			\\ \hline								
+		\textbf{Počiatočná teplota}	& \textbf{Doba behu [s]} 	& \textbf{Priem. rel. chyba [\%]} 	& \textbf{Max. rel. chyba [\%]} 	\\ \hline
+		\textbf{t=50}	&	0.009 352	&	0.103	&	2.3372	\\ \hline
+		\textbf{t=100}	&	0.011 937	&	0.063 	&	2.3372	\\ \hline
+		\textbf{t=200}	&	0.014 823	&	0.068	&	2.3372	\\ \hline
+		\textbf{t=400}	&	0.017 581	&	0.058	&	2.3372	\\ \hline
+		\textbf{t=700}	&	0.020 288	&	0.072	&	2.3372	\\ \hline
+		\textbf{t=1 000}	&	0.021 640	&	0.084	&	2.3372	\\ \hline
+		\textbf{t=1 500}	&	0.024 060	&	0.082	&	2.3372	\\ \hline
+		\textbf{t=2 000}	&	0.023 636	&	0.087	&	2.3372	\\ \hline
+		\textbf{t=3 000}	&	0.025 271	&	0.072	&	2.3372	\\ \hline
+		\textbf{t=5 000}	&	0.027 588	&	0.097	&	2.3372	\\ \hline
 	\end{tabularx}
-\caption{Závislosť relatívnej chyby heuristiky cena/váha od maximálnej hmotnosti [\%]}
+\caption{Závislosť trvania doby behu a relatívnej chyby simulovaného ochladzovania od počiatočnej teploty}
 \label{tab2}
 \end{table}
-
-\begin{figure}[htb!]\centering
-	\includegraphics[scale=0.8]{./3_1.pdf}
-	\caption{Závislosť trvania behu algoritmov BB, DP a heuristiky od max. hmotnosti}
-	\label{gr:graf1}
-\end{figure}
-
-\begin{figure}[htb!]\centering
-	\includegraphics[scale=0.8]{./3_2.pdf}
-	\caption{Závislosť rel. chyby heuristiky cena/váha od max. hmotnosti}
-	\label{gr:graf2}
-\end{figure}
-
-V druhom kroku sledujeme efekt zvyšovania \textbf{maximálnej ceny predmetov}. V tomto prípade platí, že trvanie všetkých algoritmov je cenovo necitlivé. Iná situácia by nastala v prípade, ak by dynamické programovanie bolo implementované dekompozície podľa ceny. V tom prípade by sa ukázala lineárna závislosť trvania algoritmu od maximálnej ceny na vstupe, podobne ako to bolo v mojom prípade pre dekompozíciu podľa kapacity - viz predchádzajúci bod. Relatívne chyba heuristiky opäť fluktuuje mierne nad pol percentom, ale znovu sa nedá hovoriť o nejakej očividnej závislosti. Relevantné grafy \ref{gr:graf3} a \ref{gr:graf4} a tabuľky \ref{tab3} a \ref{tab4}.
 
 \begin{table}[htb!]\centering
 	\begin{tabularx}{\textwidth}{ | X | X | X | X |}
 	  \hline                       
-							& \textbf{BB} 	& \textbf{DP} 	& \textbf{CV} 	\\ \hline
-		\textbf{c-max=40}	&	0.002 798	&	0.000 659	&	0.000 005 380	\\ \hline
-		\textbf{c-max=60}	&	0.002 654	&	0.000 638	&	0.000 005 020	\\ \hline
-		\textbf{c-max=80}	&	0.002 572	&	0.000 637	&	0.000 005 040	\\ \hline
-		\textbf{c-max=100}	&	0.002 770	&	0.000 638	&	0.000 005 030	\\ \hline
-		\textbf{c-max=125}	&	0.002 867	&	0.000 640	&	0.000 005 060	\\ \hline
-		\textbf{c-max=150}	&	0.002 651	&	0.000 638	&	0.000 004 910	\\ \hline
-		\textbf{c-max=175}	&	0.002 611	&	0.000 634	&	0.000 004 940	\\ \hline
-		\textbf{c-max=200}	&	0.002 695	&	0.000 644	&	0.000 005 140	\\ \hline
-		\textbf{c-max=250}	&	0.002 573	&	0.000 641	&	0.000 005 080	\\ \hline
-		\textbf{c-max=300}	&	0.002 686	&	0.000 647	&	0.000 005 370	\\ \hline
-		\textbf{c-max=350}	&	0.002 861	&	0.000 637	&	0.000 005 080	\\ \hline
-		\textbf{c-max=400}	&	0.002 736	&	0.000 646	&	0.000 005 350	\\ \hline
-		\textbf{c-max=450}	&	0.002 790	&	0.000 655	&	0.000 005 500	\\ \hline								
-		\textbf{c-max=500}	&	0.002 686	&	0.000 650	&	0.000 005 460	\\ \hline								
+		\textbf{Konečná teplota}	& \textbf{Doba behu [s]} 	& \textbf{Priem. rel. chyba [\%]} 	& \textbf{Max. rel. chyba [\%]} 	\\ \hline
+		\textbf{t=0.5}	&	0.025 798	&	0.062	&	2.3372	\\ \hline
+		\textbf{t=1}	&	0.023 568	&	0.088 	&	2.3372	\\ \hline
+		\textbf{t=2}	&	0.022 017	&	0.078	&	2.3372	\\ \hline
+		\textbf{t=5}	&	0.017 258	&	0.058	&	2.3372	\\ \hline
+		\textbf{t=10}	&	0.014 903	&	0.105	&	4.8414	\\ \hline
+		\textbf{t=20}	&	0.012 658	&	0.246	&	9.8497	\\ \hline
 	\end{tabularx}
-\caption{Závislosť trvania behu algoritmov BB,DP a heuristiky od maximálnej ceny [s]}
+\caption{Závislosť trvania doby behu a relatívnej chyby simulovaného ochladzovania od konečnej teploty}
 \label{tab3}
 \end{table}
 
 \begin{table}[htb!]\centering
-	\begin{tabularx}{\textwidth}{ | X | X | }
+	\begin{tabularx}{\textwidth}{ | X | X | X | X |}
 	  \hline                       
-							& \textbf{CV} 	\\ \hline
-		\textbf{c-max=40}	&	0.56719
-			\\ \hline
-		\textbf{c-max=60}	&	0.5142
-			\\ \hline
-		\textbf{c-max=80}	&	0.55552
-			\\ \hline
-		\textbf{c-max=100}	&	0.47242
-			\\ \hline
-		\textbf{c-max=125}	&	0.63001
-			\\ \hline
-		\textbf{c-max=150}	&	0.49272
-			\\ \hline
-		\textbf{c-max=175}	&	0.61052
-			\\ \hline
-		\textbf{c-max=200}	&	0.50114
-			\\ \hline
-		\textbf{c-max=250}	&	0.55035
-			\\ \hline
-		\textbf{c-max=300}	&	0.54376
-			\\ \hline
-		\textbf{c-max=350}	&	0.54897
-			\\ \hline
-		\textbf{c-max=400}	&	0.59871
-			\\ \hline
-		\textbf{c-max=450}	&	0.55344
-			\\ \hline								
-		\textbf{c-max=500}	&	0.56539
-			\\ \hline								
+		\textbf{Počet iterácií}	& \textbf{Doba behu [s]} 	& \textbf{Priem. rel. chyba [\%]} 	& \textbf{Max. rel. chyba [\%]} 	\\ \hline
+		\textbf{no=100}			&	0.000 197 	&	2.501	&	5.4936	\\ \hline
+		\textbf{no=1 000}		&	0.001 773	&	0.535 	&	3.7279	\\ \hline
+		\textbf{no=10 000}		&	0.017 543	&	0.058	&	2.3372	\\ \hline
+		\textbf{no=100 000}		&	0.175 100	&	0.046	&	2.3372	\\ \hline
+		\textbf{no=1 000 000}	&	1.676 700	&	0.046	&	2.3372	\\ \hline
 	\end{tabularx}
-\caption{Závislosť relatívnej chyby heuristiky cena/váha od maximálnej ceny [\%]}
+\caption{Závislosť trvania doby behu a relatívnej chyby simulovaného ochladzovania od počtu iterácií}
 \label{tab4}
 \end{table}
 
-V treťom kroku monitorujeme závislosť trvania behu resp. relatívnej chyby algoritmov od hodnoty prepínača generátora inštancií \emph{m}, ktorý vyjadruje \textbf{pomer medzi kapacitou batohu a súčtom váh} predmetov na vstupe. Graf \ref{gr:graf6} ukazuje klesajúcu chybu heuristiky v závislosti od narastajúceho pomeru. Teda, čím sa do batohu zmestí relatívne väčší počet predmetov, tým je chyba heuristiky nižšia (limitne sa blíži k nule, pretože každý predmet sa do batohu zlepší). Dynamické programovanie vykazuje lineárny rast - opäť je to spôsobené lineárne sa zvyšujúcou kapacitou batohu, podobne ako tomu bolo pri maximálnej váhe. Algoritmus branch and bound dokáže pri nízkom pomere kapacity batohu a sume váh predmetov efektívne orezať statový priestor, ale táto vlastnosť sa s narastajúcim pomerom zhoršuje, čoho výsledkom je exponenciálny rast doby behu pre nízke \emph{m}. Relevantné grafy \ref{gr:graf5} a \ref{gr:graf6} a tabuľky \ref{tab5} a \ref{tab6}.
+\begin{figure}[htb!]\centering
+	\includegraphics[scale=0.8]{./4_1.pdf}
+	\caption{Závislosť trvania doby behu a relatívnej chyby simulovaného ochladzovania od koeficientu ochladzovania}
+	\label{gr:graf1}
+\end{figure}
 
 \begin{figure}[htb!]\centering
-	\includegraphics[scale=0.8]{./3_3.pdf}
-	\caption{Závislosť trvania behu algoritmov BB. DP a heuristiky od max. ceny }
+	\includegraphics[scale=0.8]{./4_2.pdf}
+	\caption{Závislosť trvania doby behu a relatívnej chyby simulovaného ochladzovania od počiatočnej teploty}
+	\label{gr:graf2}
+\end{figure}
+
+\begin{figure}[htb!]\centering
+	\includegraphics[scale=0.8]{./4_3.pdf}
+	\caption{Závislosť trvania doby behu a relatívnej chyby simulovaného ochladzovania od konečnej teploty}
 	\label{gr:graf3}
 \end{figure}
 
 \begin{figure}[htb!]\centering
-	\includegraphics[scale=0.8]{./3_4.pdf}
-	\caption{Závislosť rel. chyby heuristiky cena/váha od max. ceny}
+	\includegraphics[scale=0.8]{./4_4.pdf}
+	\caption{Závislosť trvania doby behu a relatívnej chyby simulovaného ochladzovania od počtu iterácií}
 	\label{gr:graf4}
 \end{figure}
 
-\begin{table}[htb!]\centering
-	\begin{tabularx}{\textwidth}{ | X | X | X | X |}
-	  \hline                       
-							& \textbf{BB} 	& \textbf{DP} 	& \textbf{CV} 	\\ \hline
-		\textbf{pomer=0.1}	&	0.000 039		&		0.000 1055		&	0.000 003 880			\\ \hline
-		\textbf{pomer=0.2}	&	0.000 143		&		0.000 2274		&	0.000 003 950			\\ \hline
-		\textbf{pomer=0.3}	&	0.000 447		&		0.000 3523		&	0.000 004 120			\\ \hline
-		\textbf{pomer=0.4}	&	0.001 156		&		0.000 4783		&	0.000 004 170			\\ \hline
-		\textbf{pomer=0.5}	&	0.002 673		&		0.000 6507		&	0.000 005 520			\\ \hline
-		\textbf{pomer=0.6}	&	0.004 853		&		0.000 7976		&	0.000 006 050			\\ \hline
-		\textbf{pomer=0.7}	&	0.007 638		&		0.000 9356		&	0.000 006 200			\\ \hline
-		\textbf{pomer=0.8}	&	0.009 888		&		0.001 0469		&	0.000 006 060			\\ \hline
-		\textbf{pomer=0.9}	&	0.010 618		&		0.001 1860		&	0.000 006 360			\\ \hline
-	\end{tabularx}
-\caption{Závislosť trvania behu algoritmov BB,DP a heuristiky od pomeru nosnosť/suma váh [s]}
-\label{tab5}
-\end{table}
-
-\begin{table}[htb!]\centering
-	\begin{tabularx}{\textwidth}{ | X | X | }
-	  \hline                       
-							& \textbf{CV} 	\\ \hline
-		\textbf{pomer=0.1}	&	1.4738
-			\\ \hline
-		\textbf{pomer=0.2}	&	1.0519
-			\\ \hline
-		\textbf{pomer=0.3}	&	0.97004
-			\\ \hline
-		\textbf{pomer=0.4}	&	0.78315
-			\\ \hline
-		\textbf{pomer=0.5}	&	0.49983
-			\\ \hline
-		\textbf{pomer=0.6}	&	0.3608
-			\\ \hline
-		\textbf{pomer=0.7}	&	0.22867
-			\\ \hline
-		\textbf{pomer=0.8}	&	0.17306
-			\\ \hline
-		\textbf{pomer=0.9}	&	0.084475
-			\\ \hline
-	\end{tabularx}
-\caption{Závislosť relatívnej chyby heuristiky cena/váha od pomeru nosnosť batohu/suma váh [\%]}
-\label{tab6}
-\end{table}
-
 \begin{figure}[htb!]\centering
-	\includegraphics[scale=0.8]{./3_5.pdf}
-	\caption{Závislosť trvania behu algoritmov BB, DP a heuristiky od pomeru nosnosť vs. suma váh}
+	\includegraphics[scale=0.6]{./4_5.pdf}
+	\caption{Závislosť ceny aktuálneho stavu od čísla iterácie}
 	\label{gr:graf5}
-\end{figure}
-
-\begin{figure}[htb!]\centering
-	\includegraphics[scale=0.8]{./3_6.pdf}
-	\caption{Závislosť rel. chyby heuristiky cena/váha od pomeru nosnosť/suma váh}
-	\label{gr:graf6}
-\end{figure}
-
-Ako posledný faktor budeme meniť \textbf{granularitu dát} pomocou parametra \emph{k} pre prevahu veľkých vecí (\emph{d=1}). Platí, že čím väčšia hodnota tohto parametra, tým je menšia pravdepodobnosť malých dát na vstupe. Z toho vyplýva, že so zvyšujúcim sa počtom veľkých predmetov (narastajúce \emph{k}) rastie zároveň aj nosnosť batohu, a teda opäť dochádza k rastu doby behu metódy dynamického programovania. Naopak, doba behu algoritmu branch and bound klesá približne exponenciálne s narastajúcim počtom veľkých predmetov na vstupe až do fázy, v ktorej beží rýchlejšie ako dynamické programovanie. Beh heuristiky, ako tomu bolo vo všetkých predchádzajúcich prípadoch, nie je závislý na granularite vstupných dát. S narastajúcou hodnotou váh predmetov ale dochádza k zmenšovaniu relatívnych chýb až k hodnote 0.1 percenta. Relevantné grafy \ref{gr:graf7} a \ref{gr:graf8} a tabuľky \ref{tab7} a \ref{tab8}.
-
-\begin{table}[htb!]\centering
-	\begin{tabularx}{\textwidth}{ | X | X | X | X |}
-	  \hline                       
-							& \textbf{BB} 	& \textbf{DP} 	& \textbf{CV} 	\\ \hline
-		\textbf{exp=0.1}	&	0.002 830		&	0.000 755		&	0.000 005 560			\\ \hline
-		\textbf{exp=0.2}	&	0.002 815		&	0.000 770		&	0.000 005 580			\\ \hline
-		\textbf{exp=0.4}	&	0.002 304		&	0.000 828		&	0.000 005 350			\\ \hline
-		\textbf{exp=0.6}	&	0.001 931		&	0.000 939		&	0.000 005 480			\\ \hline
-		\textbf{exp=0.8}	&	0.001 636		&	0.001 026		&	0.000 005 460			\\ \hline
-		\textbf{exp=1}		&	0.001 269		&	0.001 076		&	0.000 005 380			\\ \hline
-		\textbf{exp=1.5}	&	0.000 972		&	0.001 185		&	0.000 005 440			\\ \hline
-		\textbf{exp=2}		&	0.000 800		&	0.001 259		&	0.000 005 600			\\ \hline
-		\textbf{exp=2.5}	&	0.000 785		&	0.001 321		&	0.000 005 360			\\ \hline
-		\textbf{exp=3}		&	0.000 754		&	0.001 301		&	0.000 005 550			\\ \hline
-		\textbf{exp=4}		&	0.000 665		&	0.001 197		&	0.000 004 760			\\ \hline
-	\end{tabularx}	
-\caption{Závislosť trvania behu algoritmov BB,DP a heuristiky od exponentu granularity [s]}
-\label{tab7}
-\end{table}
-
-\begin{table}[htb!]\centering
-	\begin{tabularx}{\textwidth}{ | X | X | }
-	  \hline                       
-							& \textbf{CV} 	\\ \hline
-		\textbf{exp=0.1}	&	0.57106
-			\\ \hline
-		\textbf{exp=0.2}	&	0.55837
-			\\ \hline
-		\textbf{exp=0.4}	&	0.56664
-			\\ \hline
-		\textbf{exp=0.6}	&	0.53169
-			\\ \hline
-		\textbf{exp=0.8}	&	0.61671
-			\\ \hline
-		\textbf{exp=1}		&	0.53568
-			\\ \hline
-		\textbf{exp=1.5}	&	0.45679
-			\\ \hline
-		\textbf{exp=2}		&	0.45407
-			\\ \hline
-		\textbf{exp=2.5}	&	0.14103
-			\\ \hline
-		\textbf{exp=3}		&	0.29805
-			\\ \hline
-		\textbf{exp=4}		&	0.12878
-			\\ \hline
-	\end{tabularx}
-\caption{Závislosť relatívnej chyby heuristiky cena/váha od exponentu granularity [\%]}
-\label{tab8}
-\end{table}
-
-\begin{figure}[htb!]\centering
-	\includegraphics[scale=0.8]{./3_7.pdf}
-	\caption{Závislosť trvania behu algoritmov BB, DP a heuristiky od exponentu granularity}
-	\label{gr:graf7}
-\end{figure}
-
-\begin{figure}[htb!]\centering
-	\includegraphics[scale=0.8]{./3_8.pdf}
-	\caption{Závislosť rel. chyby cena/váha od exponentu granularity}
-	\label{gr:graf8}
 \end{figure}
 
 \section{Zhodnotenie}
 
-\begin{table}[htb!]\centering
-	\begin{tabularx}{\textwidth}{ | X | X | X | X |}
-	  \hline                       
-		\textbf{Algoritmus}			& \textbf{Presnosť} 	& \textbf{Rýchlosť} 	& \textbf{Hodnotenie} 	\\ \hline
-		\textbf{Brute force}		& absolútna				&	pomalá (exponenciálna)		&	poskytuje exaktné, referenčné riešenie, nepoužiteľné pre väčšie inštancie 			\\ \hline
-		\textbf{Dynamické programovanie (dekompozícia podľa kapacity)}		& absolútna				&	rýchla (pseudopolynomálna)		&	pamäťovo náročná, závislá na hmotnosti predmetov			\\ \hline
-		\textbf{Branch and bound}	& absolútna				&	rýchla, ale závislá na charaktere vstupných dát (v najhoršom prípade rovnaká ako brute force)	& 	efektívna pokiaľ kapacita batohu výrazne menšia ako suma váh predmetov		\\ \hline
-		\textbf{Heuristika cena-váha}& vysoká (chyba maximálne v rámci jednotiek percent)				&	rýchla, nezávislá od charakteru vstupných dát		&	efektívna, ak sa do batohu zmestí veľké percento predmetov			\\ \hline
-	\end{tabularx}	
-\caption{Porovnanie implementovaných algoritmov}
-\label{tab9}
-\end{table}
+Pomocou metodiky v sekcii Výsledky som dospel k nasledovným optimálnym hodnotám parametrov:
+\begin{itemize}
+  \item INITIAL\_TEMP = 400
+  \item LOWER\_BOUND\_TEMP = 5
+  \item COOLING\_FACTOR = 0.85
+  \item NO\_OF\_STEPS = 10 000
+\end{itemize}
+
+Obecne, otázku určenia optimálnych hodnôt jednotlivých parametrov môžeme preformulovať nasledovne - v prípade, ak algoritmus simulovaného ochladzovania necháme bežať dlhšie, o koľko dôjde k zmenšeniu relatívnych chýb v porovnaní s exaktnými riešeniami, akým je napríklad algoritmus dynamického programovania? 
+
+Ukázalo sa, že vysoký chladiaci pomer, nad 0.9 (=pomalé chladenie) výrazným spôsobom neznižuje relatívne chyby v porovnaní s optimálnou hodnotou 0.85.
+
+Z hľadiska počiatočnej teploty sa ako optimálne ukázali byť hodnoty okolo 500. Pre testované inštancie o veľkosti \emph{n=40} dosahovala najlepší pomer relatívnej chyby k dobe behu algoritmu teplota t=400, pre inú veľkosť inštancií sa ako optimálna počiatočná teplota ukázala byť hodnota 700.
+
+Ďalej, s narastajúcou konečnou teplotou klesala na rozdiel od dvojice predchádzajúcich premenných doba behu algoritmu a zároveň dochádzalo k nárastu relatívnych chýb.  Ako optimálnym riešením sa zdá byť hodnota konečnej teploty rovná 5, pri ktorej algoritmus dosahoval najmenšiu relatívnu chybu so zachovaním rozumnej doby behu.
+
+Konečne, s narastajúcim počtom iterácií vnútorného cyklu, dochádza k rádovému rastu doby behu algoritmu pri mojich testovaných hodnotách. Rozumný pomer dosahovali hodnoty 1 000 a 10 000 iterácií. Pre otestovanie dostatočného počtu stavov som za optimálnu zvolil vyššiu hodnotu, t.j. 10 000 iterácií.  
+
+Pri týchto optimálnych hodnotách dosahuje priemerná relatívna chyba 0.058 percenta, maximálna relatívna chyba 2.33 percenta pre vzorky inštancií n=40.
 
 \end{document}

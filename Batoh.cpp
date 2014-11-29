@@ -9,6 +9,7 @@
 #include <assert.h>
 #include <queue>
 #include <limits.h>
+#include <math.h>
 
 #include "Batoh.h"
 #include "ABC.cpp"
@@ -61,6 +62,10 @@ Batoh::Batoh (int id, int no_of_elements, int max_weight)
 	this->fptas_price = new int [this->no_of_elements]; // FPTAS algoritmus
 	this->fptas_best_array = new bool [this->no_of_elements];
 	this->fptas_price_sum = 0;
+	
+	/*simulovane ochladzovanie*/
+	this->sa_best_array = new bool [this->no_of_elements];
+	this->sa_array = new bool [this->no_of_elements];
 }
 
 Batoh::~Batoh()
@@ -93,7 +98,15 @@ Batoh::~Batoh()
 	//cistenie FPTAS alogitmu; dealokacia fptas_matrix priamo v procedure fptas
 	delete [] this->fptas_price;
 	delete [] this->fptas_best_array;
-
+	
+	/*simulated annealing*/
+	if (this->sa_best_array == this->sa_array)
+		delete [] this->sa_best_array;
+	else
+	{
+		delete [] this->sa_best_array;
+		delete [] this->sa_array;
+	}
 }
 
 int Batoh::getCMax()
@@ -702,4 +715,82 @@ void Batoh::branchAndBound()
     
     end=omp_get_wtime(); // end of time measurement
 	this->bb_time=end-start;
+}
+
+void Batoh::simulatedAnnealing ()
+{
+	double start,end;
+	start=omp_get_wtime(); // start measuring time	
+	
+	/* parametre simulovaneho ochladzovania */
+	this->INITIAL_TEMPERATURE =  400.0;
+	this->FINAL_TEMPERATURE = 5;
+	this->NUMBER_OF_STEPS = 10000;
+	this->COOLING_FACTOR = 0.85;
+	
+	int iteration_number=0;
+	
+	/* trivialna konfiguracia */
+	this->sa_array_price = this->sa_array_weight = 0;
+	for (int i=0; i<this->no_of_elements; i++)
+	{
+		this->sa_array [i] = 0;
+	}
+	
+	double current_temperature = this->INITIAL_TEMPERATURE;
+	while (current_temperature > this->FINAL_TEMPERATURE)
+	{
+		int current_step = this->NUMBER_OF_STEPS;
+		while (current_step > 0)
+		{
+			saGenerateNewState(current_temperature);
+			//cout << iteration_number << " " <<  this->sa_array_price << endl;
+			current_step--;
+			iteration_number++;
+			if (this->sa_array_price > this->sa_best_price)
+			{
+				this->sa_best_array = this->sa_array;
+				this->sa_best_price = this->sa_array_price;
+			}
+		}
+		current_temperature *= this->COOLING_FACTOR;
+	}
+	
+	end=omp_get_wtime(); // end of time measurement
+	this->sa_time=end-start;	
+}
+
+void Batoh::saGenerateNewState (int current_temperature)
+{
+	/* vyberieme nahodny index pola */
+	int index = rand() % this->no_of_elements;
+	
+	if (this->sa_array[index] == 1) 
+	{
+		/* element je uz sucastou vyberu, za istych okolnosti ho mozem odstranit */
+		int temp_price = this->sa_array_price - this->price[index];
+		int delta = temp_price - this->sa_array_price;
+		double x = (double)rand() / (double)RAND_MAX; // generuj nahodne cislo v intervale (0,1)
+		if (x < exp((double)delta / current_temperature)) // s klesajucou hodnotou teploty klesa pravdepodobnost akceptovania horsieho stavu
+		{
+			this->sa_array[index] = 0;
+			this->sa_array_price = temp_price;
+			this->sa_array_weight -= this->weight[index];
+		}
+	}
+	else
+	{
+		/* element na pozicii "index" nie je sucastou vyberu, ak neprekrocim vahu, tak ho pridam */
+		if (this->sa_array_weight + this->weight[index] <= this->max_weight)
+		{
+			this->sa_array[index] = 1;
+			this->sa_array_price += price[index];
+			this->sa_array_weight += weight[index];
+		}
+		/* element na pozicii "index" nie je sucastou vyberu, ale prekrocil by som nosnost batohu, keby som ho do vyberu pridal */
+		else
+		{
+			return;
+		}
+	}
 }

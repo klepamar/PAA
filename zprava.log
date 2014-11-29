@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.15 (TeX Live 2015/dev/Debian) (preloaded format=pdflatex 2014.11.4)  16 NOV 2014 11:38
+This is pdfTeX, Version 3.14159265-2.6-1.40.15 (TeX Live 2015/dev/Debian) (preloaded format=pdflatex 2014.11.4)  29 NOV 2014 18:50
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -521,23 +521,23 @@ LaTeX Warning: Unused global option(s):
 (./zprava.aux)
 \openout1 = `zprava.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 28.
-LaTeX Font Info:    ... okay on input line 28.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 28.
-LaTeX Font Info:    ... okay on input line 28.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 28.
-LaTeX Font Info:    ... okay on input line 28.
-LaTeX Font Info:    Checking defaults for OMS/pzccm/m/n on input line 28.
-LaTeX Font Info:    Try loading font information for OMS+pzccm on input line 28
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 29.
+LaTeX Font Info:    ... okay on input line 29.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 29.
+LaTeX Font Info:    ... okay on input line 29.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 29.
+LaTeX Font Info:    ... okay on input line 29.
+LaTeX Font Info:    Checking defaults for OMS/pzccm/m/n on input line 29.
+LaTeX Font Info:    Try loading font information for OMS+pzccm on input line 29
 .
  (/usr/share/texlive/texmf-dist/tex/latex/psnfss/omspzccm.fd
 File: omspzccm.fd 2000/01/03 Fontinst v1.801 font definitions for OMS/pzccm.
 )
-LaTeX Font Info:    ... okay on input line 28.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 28.
-LaTeX Font Info:    ... okay on input line 28.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 28.
-LaTeX Font Info:    ... okay on input line 28.
+LaTeX Font Info:    ... okay on input line 29.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 29.
+LaTeX Font Info:    ... okay on input line 29.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 29.
+LaTeX Font Info:    ... okay on input line 29.
 
 (/usr/share/texlive/texmf-dist/tex/generic/oberdiek/pdftexcmds.sty
 Package: pdftexcmds 2011/11/29 v0.20 Utility functions of pdfTeX for LuaTeX (HO
@@ -602,286 +602,153 @@ e
 \makeMPintoPDFobject=\count125
 \everyMPtoPDFconversion=\toks28
 )
-LaTeX Font Info:    Try loading font information for OT1+ptmcm on input line 34
+LaTeX Font Info:    Try loading font information for OT1+ptmcm on input line 35
 .
  (/usr/share/texlive/texmf-dist/tex/latex/psnfss/ot1ptmcm.fd
 File: ot1ptmcm.fd 2000/01/03 Fontinst v1.801 font definitions for OT1/ptmcm.
 )
-LaTeX Font Info:    Try loading font information for OML+ptmcm on input line 34
+LaTeX Font Info:    Try loading font information for OML+ptmcm on input line 35
 .
 
 (/usr/share/texlive/texmf-dist/tex/latex/psnfss/omlptmcm.fd
 File: omlptmcm.fd 2000/01/03 Fontinst v1.801 font definitions for OML/ptmcm.
 )
-LaTeX Font Info:    Try loading font information for OMX+psycm on input line 34
+LaTeX Font Info:    Try loading font information for OMX+psycm on input line 35
 .
 
 (/usr/share/texlive/texmf-dist/tex/latex/psnfss/omxpsycm.fd
 File: omxpsycm.fd 2000/01/03 Fontinst v1.801 font definitions for OMX/psycm.
 )
 LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <12> not available
-(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 34.
+(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 35.
 LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <9> not available
-(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 34.
+(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 35.
 LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <7> not available
-(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 34.
+(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 35.
 LaTeX Font Info:    Font shape `T1/ptm/bx/n' in size <14.4> not available
-(Font)              Font shape `T1/ptm/b/n' tried instead on input line 36.
+(Font)              Font shape `T1/ptm/b/n' tried instead on input line 37.
 LaTeX Font Info:    Font shape `OMS/ptm/m/n' in size <10> not available
-(Font)              Font shape `OMS/pzccm/m/n' tried instead on input line 46.
-LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <10> not available
-(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 65.
-LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <7.4> not available
-(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 65.
-LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <6> not available
-(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 65.
-
-Overfull \hbox (9.1267pt too wide) in paragraph at lines 65--66
-\T1/ptm/m/n/10 Algoritmus dy-nam-ick-ého pro-gra-ma-nia z pred-chádza-júcej ite
-rá-cie bol za-loºený na dekom-
- []
-
-[1
+(Font)              Font shape `OMS/pzccm/m/n' tried instead on input line 47.
+ [1
 
 {/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}]
-Overfull \hbox (4.44711pt too wide) in paragraph at lines 67--68
-[]\T1/ptm/m/n/10 V prí-pade heuris-tiky cena-váha neo£aká-vam, ºe doba behu je 
-závislá na akomko©vek
+LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <10> not available
+(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 84.
+LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <7.4> not available
+(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 84.
+LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <6> not available
+(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 84.
+
+Overfull \hbox (2.3171pt too wide) in paragraph at lines 98--99
+\T1/ptm/m/n/10 notu ¤al²ieho parametru. Kone£ne, po zis-tení op-ti-mál-nych hod
+-nôt v²etkých parametrov
  []
 
-LaTeX Font Info:    Font shape `T1/ptm/bx/n' in size <10> not available
-(Font)              Font shape `T1/ptm/b/n' tried instead on input line 89.
-[2] <./3_1.pdf, id=14, 455.26186pt x 256.06265pt>
-File: ./3_1.pdf Graphic file (type pdf)
- <use ./3_1.pdf>
-Package pdftex.def Info: ./3_1.pdf used on input line 152.
-(pdftex.def)             Requested size: 364.20996pt x 204.85039pt.
+[2]
+Underfull \hbox (badness 10000) in paragraph at lines 112--112
+[]|\T1/ptm/b/n/10 Koeficient
+ []
 
-Overfull \hbox (19.20996pt too wide) in paragraph at lines 152--153
+
+Underfull \hbox (badness 10000) in paragraph at lines 112--112
+[]|\T1/ptm/b/n/10 Priem. rel.
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 131--131
+[]|\T1/ptm/b/n/10 Po£iato£ná
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 131--131
+[]|\T1/ptm/b/n/10 Priem. rel.
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 146--146
+[]|\T1/ptm/b/n/10 Priem. rel.
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 160--160
+[]|\T1/ptm/b/n/10 Priem. rel.
+ []
+
+<./4_1.pdf, id=13, 563.45609pt x 331.95619pt>
+File: ./4_1.pdf Graphic file (type pdf)
+ <use ./4_1.pdf>
+Package pdftex.def Info: ./4_1.pdf used on input line 166.
+(pdftex.def)             Requested size: 450.76549pt x 265.56529pt.
+
+Overfull \hbox (105.76549pt too wide) in paragraph at lines 166--167
  [][] 
  []
 
-<./3_2.pdf, id=15, 455.26186pt x 256.06265pt>
-File: ./3_2.pdf Graphic file (type pdf)
- <use ./3_2.pdf>
-Package pdftex.def Info: ./3_2.pdf used on input line 158.
-(pdftex.def)             Requested size: 364.20996pt x 204.85039pt.
+<./4_2.pdf, id=14, 545.2631pt x 287.39471pt>
+File: ./4_2.pdf Graphic file (type pdf)
+ <use ./4_2.pdf>
+Package pdftex.def Info: ./4_2.pdf used on input line 172.
+(pdftex.def)             Requested size: 436.21107pt x 229.91608pt.
 
-Overfull \hbox (19.20996pt too wide) in paragraph at lines 158--159
+Overfull \hbox (91.21107pt too wide) in paragraph at lines 172--173
  [][] 
  []
 
-[3] [4 <./3_1.pdf> <./3_2.pdf>] [5]
-<./3_3.pdf, id=33, 455.26186pt x 256.06265pt>
-File: ./3_3.pdf Graphic file (type pdf)
- <use ./3_3.pdf>
-Package pdftex.def Info: ./3_3.pdf used on input line 228.
-(pdftex.def)             Requested size: 364.20996pt x 204.85039pt.
+<./4_3.pdf, id=15, 531.06505pt x 288.89934pt>
+File: ./4_3.pdf Graphic file (type pdf)
+ <use ./4_3.pdf>
+Package pdftex.def Info: ./4_3.pdf used on input line 178.
+(pdftex.def)             Requested size: 424.85262pt x 231.11977pt.
 
-Overfull \hbox (19.20996pt too wide) in paragraph at lines 228--229
+Overfull \hbox (79.85262pt too wide) in paragraph at lines 178--179
  [][] 
  []
 
-<./3_4.pdf, id=34, 455.26186pt x 256.06265pt>
-File: ./3_4.pdf Graphic file (type pdf)
- <use ./3_4.pdf>
-Package pdftex.def Info: ./3_4.pdf used on input line 234.
-(pdftex.def)             Requested size: 364.20996pt x 204.85039pt.
+<./4_4.pdf, id=16, 513.63194pt x 307.02pt>
+File: ./4_4.pdf Graphic file (type pdf)
+ <use ./4_4.pdf>
+Package pdftex.def Info: ./4_4.pdf used on input line 184.
+(pdftex.def)             Requested size: 410.90611pt x 245.61633pt.
 
-Overfull \hbox (19.20996pt too wide) in paragraph at lines 234--235
+Overfull \hbox (65.90611pt too wide) in paragraph at lines 184--185
  [][] 
  []
 
-<./3_5.pdf, id=35, 455.26186pt x 256.06265pt>
-File: ./3_5.pdf Graphic file (type pdf)
- <use ./3_5.pdf>
-Package pdftex.def Info: ./3_5.pdf used on input line 285.
-(pdftex.def)             Requested size: 364.20996pt x 204.85039pt.
+<./4_5.pdf, id=17, 642.31068pt x 401.44379pt>
+File: ./4_5.pdf Graphic file (type pdf)
+ <use ./4_5.pdf>
+Package pdftex.def Info: ./4_5.pdf used on input line 190.
+(pdftex.def)             Requested size: 385.38937pt x 240.86812pt.
 
-Overfull \hbox (19.20996pt too wide) in paragraph at lines 285--286
+Overfull \hbox (40.38937pt too wide) in paragraph at lines 190--191
  [][] 
  []
 
-<./3_6.pdf, id=36, 455.26186pt x 256.06265pt>
-File: ./3_6.pdf Graphic file (type pdf)
- <use ./3_6.pdf>
-Package pdftex.def Info: ./3_6.pdf used on input line 291.
-(pdftex.def)             Requested size: 364.20996pt x 204.85039pt.
-
-Overfull \hbox (19.20996pt too wide) in paragraph at lines 291--292
- [][] 
+[3]
+Overfull \hbox (5.32742pt too wide) in paragraph at lines 205--206
+\T1/ptm/m/n/10 for-mulo-va´ nasle-dovne - v prí-pade, ak al-go-rit-mus simulo-v
+aného ochlad-zo-va-nia necháme
  []
 
-[6 <./3_3.pdf>] <./3_7.pdf, id=44, 455.26186pt x 256.06265pt>
-File: ./3_7.pdf Graphic file (type pdf)
- <use ./3_7.pdf>
-Package pdftex.def Info: ./3_7.pdf used on input line 350.
-(pdftex.def)             Requested size: 364.20996pt x 204.85039pt.
-
-Overfull \hbox (19.20996pt too wide) in paragraph at lines 350--351
- [][] 
- []
-
-<./3_8.pdf, id=45, 455.26186pt x 256.06265pt>
-File: ./3_8.pdf Graphic file (type pdf)
- <use ./3_8.pdf>
-Package pdftex.def Info: ./3_8.pdf used on input line 356.
-(pdftex.def)             Requested size: 364.20996pt x 204.85039pt.
-
-Overfull \hbox (19.20996pt too wide) in paragraph at lines 356--357
- [][] 
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 371--371
-[]|\T1/ptm/m/n/10 poskytuje ex-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 371--371
-\T1/ptm/m/n/10 ak-tné, re-fe-ren-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 371--371
-\T1/ptm/m/n/10 £né rie²e-nie,
- []
-
-
-Underfull \hbox (badness 3815) in paragraph at lines 371--371
-\T1/ptm/m/n/10 nepouºite©né pre
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 371--371
-[]|\T1/ptm/b/n/10 Dynamické
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 371--371
-\T1/ptm/b/n/10 pro-gramovanie
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 371--371
-\T1/ptm/b/n/10 (dekom-pozí-cia
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 371--371
-[]|\T1/ptm/m/n/10 rýchla (pseu-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 371--371
-[]|\T1/ptm/m/n/10 pamä´ovo
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 371--371
-\T1/ptm/m/n/10 náro£ná, závislá
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 371--371
-\T1/ptm/m/n/10 na hmot-nosti
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 371--371
-[]|\T1/ptm/b/n/10 Branch and
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 371--371
-\T1/ptm/m/n/10 na charak-tere
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 371--371
-\T1/ptm/m/n/10 vs-tup-ných dát
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 371--371
-\T1/ptm/m/n/10 (v na-jhor²om
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 371--371
-\T1/ptm/m/n/10 prí-pade rov-naká
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 371--371
-[]|\T1/ptm/m/n/10 efektívna pokia©
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 371--371
-\T1/ptm/m/n/10 ka-pacita ba-tohu
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 371--371
-\T1/ptm/m/n/10 výrazne men²ia
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 371--371
-\T1/ptm/m/n/10 ako suma váh
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 371--371
-[]|\T1/ptm/m/n/10 vysoká (chyba
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 371--371
-\T1/ptm/m/n/10 max-imálne v
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 371--371
-\T1/ptm/m/n/10 rámci jed-notiek
- []
-
-
-Underfull \hbox (badness 4254) in paragraph at lines 371--371
-[]|\T1/ptm/m/n/10 rýchla, nezávislá
- []
-
-
-Underfull \hbox (badness 3713) in paragraph at lines 371--371
-[]|\T1/ptm/m/n/10 efektívna, ak sa
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 371--371
-\T1/ptm/m/n/10 ve©ké per-cento
- []
-
-[7 <./3_4.pdf>] [8 <./3_5.pdf> <./3_6.pdf>] [9] [10 <./3_7.pdf> <./3_8.pdf>]
-[11] (./zprava.aux) ) 
+[4] [5 <./4_1.pdf>] [6 <./4_2.pdf> <./4_3.pdf>] [7 <./4_4.pdf>] [8 <./4_5.pdf>]
+(./zprava.aux) ) 
 Here is how much of TeX's memory you used:
- 6099 strings out of 495020
- 83911 string characters out of 6181324
- 168727 words of memory out of 5000000
- 9184 multiletter control sequences out of 15000+600000
+ 6334 strings out of 495020
+ 85598 string characters out of 6181324
+ 167660 words of memory out of 5000000
+ 9422 multiletter control sequences out of 15000+600000
  39641 words of font info for 66 fonts, out of 8000000 for 9000
  23 hyphenation exceptions out of 8191
- 38i,10n,39p,1057b,291s stack positions out of 5000i,500n,10000p,200000b,80000s
-{/usr/share/texlive/texmf-dist/fonts/enc/dvips/base/8r.enc
-}</usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/
-share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/
-texlive/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/share/texlive/texmf-d
-ist/fonts/type1/urw/times/utmr8a.pfb></usr/share/texlive/texmf-dist/fonts/type1
-/urw/times/utmri8a.pfb>
-Output written on zprava.pdf (11 pages, 225114 bytes).
+ 38i,10n,39p,1177b,1039s stack positions out of 5000i,500n,10000p,200000b,80000s
+{/usr/share/texlive/texmf-dist/fonts/enc/dvips/base/8r.enc}</us
+r/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/shar
+e/texlive/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/share/texlive/texmf
+-dist/fonts/type1/urw/times/utmr8a.pfb></usr/share/texlive/texmf-dist/fonts/typ
+e1/urw/times/utmri8a.pfb>
+Output written on zprava.pdf (8 pages, 181861 bytes).
 PDF statistics:
- 101 PDF objects out of 1000 (max. 8388607)
- 66 compressed objects within 1 object stream
+ 75 PDF objects out of 1000 (max. 8388607)
+ 49 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
- 41 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 26 words of extra memory for PDF output out of 10000 (max. 10000000)
 
