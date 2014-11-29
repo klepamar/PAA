@@ -1,21 +1,41 @@
 \relax 
 \@writefile{toc}{\contentsline {section}{\numberline {1}Defin\IeC {\'\i }cia probl\IeC {\'e}mu}{1}}
 \@writefile{toc}{\contentsline {section}{\numberline {2}Form\IeC {\'a}t vstupu}{1}}
-\@writefile{toc}{\contentsline {section}{\numberline {3}Rozbor mo\IeC {\v z}n\IeC {\'y}ch variant}{1}}
-\@writefile{toc}{\contentsline {section}{\numberline {4}R\IeC {\'a}mcov\IeC {\'y} popis postupu}{2}}
-\@writefile{toc}{\contentsline {section}{\numberline {5}Popis kostry algoritmu}{2}}
-\@writefile{toc}{\contentsline {section}{\numberline {6}V\IeC {\'y}sledky}{3}}
-\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Priemern\IeC {\'e} trvanie behu v sekund\IeC {\'a}ch pre varianty brute-force (BF), branch-and-bound (BB), dynamick\IeC {\'e}ho programovania (DP) s dekompoz\IeC {\'\i }ciou pod\IeC {\v l}a kapacity a FPTAS algoritmu s dan\IeC {\'y}m paremetrom \emph  {i}}}{5}}
-\newlabel{tab1}{{1}{5}}
-\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces Priemern\IeC {\'a} relat\IeC {\'\i }vna odch\IeC {\'y}lka ceny v\IeC {\'y}sledn\IeC {\'e}ho v\IeC {\'y}beru realizovan\IeC {\'e}ho FPTAS algoritmom v percent\IeC {\'a}ch}}{6}}
-\newlabel{tab2}{{2}{6}}
-\@writefile{toc}{\contentsline {section}{\numberline {7}Diskusia}{6}}
-\@writefile{toc}{\contentsline {section}{\numberline {8}Literat\IeC {\'u}ra}{6}}
-\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces Maxim\IeC {\'a}lna odch\IeC {\'y}lka ceny v\IeC {\'y}sledn\IeC {\'e}ho v\IeC {\'y}beru realizovan\IeC {\'e}ho FPTAS algoritmom v percent\IeC {\'a}ch}}{7}}
-\newlabel{tab3}{{3}{7}}
-\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Priemern\IeC {\'e} trvanie jednotliv\IeC {\'y}ch implement\IeC {\'a}ci\IeC {\'\i }}}{7}}
-\newlabel{gr:graf1}{{1}{7}}
-\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Priemern\IeC {\'a} relat\IeC {\'\i }vna chyba algoritmu FPTAS(i)}}{8}}
-\newlabel{gr:graf2}{{2}{8}}
-\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Maxim\IeC {\'a}lna relat\IeC {\'\i }vna chyba algoritmu FPTAS(i)}}{8}}
-\newlabel{gr:graf3}{{3}{8}}
+\@writefile{toc}{\contentsline {section}{\numberline {3}\IeC {\'U}vod}{1}}
+\@writefile{toc}{\contentsline {section}{\numberline {4}Predpoklady}{2}}
+\@writefile{toc}{\contentsline {section}{\numberline {5}V\IeC {\'y}sledky}{2}}
+\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Z\IeC {\'a}vislos\IeC {\v t} trvania behu algoritmov BB,DP a heuristiky od maxim\IeC {\'a}lnej hmotnosti [s]}}{3}}
+\newlabel{tab1}{{1}{3}}
+\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces Z\IeC {\'a}vislos\IeC {\v t} relat\IeC {\'\i }vnej chyby heuristiky cena/v\IeC {\'a}ha od maxim\IeC {\'a}lnej hmotnosti [\%]}}{3}}
+\newlabel{tab2}{{2}{3}}
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Z\IeC {\'a}vislos\IeC {\v t} trvania behu algoritmov BB, DP a heuristiky od max. hmotnosti}}{4}}
+\newlabel{gr:graf1}{{1}{4}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Z\IeC {\'a}vislos\IeC {\v t} rel. chyby heuristiky cena/v\IeC {\'a}ha od max. hmotnosti}}{4}}
+\newlabel{gr:graf2}{{2}{4}}
+\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces Z\IeC {\'a}vislos\IeC {\v t} trvania behu algoritmov BB,DP a heuristiky od maxim\IeC {\'a}lnej ceny [s]}}{5}}
+\newlabel{tab3}{{3}{5}}
+\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces Z\IeC {\'a}vislos\IeC {\v t} relat\IeC {\'\i }vnej chyby heuristiky cena/v\IeC {\'a}ha od maxim\IeC {\'a}lnej ceny [\%]}}{5}}
+\newlabel{tab4}{{4}{5}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Z\IeC {\'a}vislos\IeC {\v t} trvania behu algoritmov BB. DP a heuristiky od max. ceny }}{6}}
+\newlabel{gr:graf3}{{3}{6}}
+\@writefile{lot}{\contentsline {table}{\numberline {5}{\ignorespaces Z\IeC {\'a}vislos\IeC {\v t} trvania behu algoritmov BB,DP a heuristiky od pomeru nosnos\IeC {\v t}/suma v\IeC {\'a}h [s]}}{6}}
+\newlabel{tab5}{{5}{6}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Z\IeC {\'a}vislos\IeC {\v t} rel. chyby heuristiky cena/v\IeC {\'a}ha od max. ceny}}{7}}
+\newlabel{gr:graf4}{{4}{7}}
+\@writefile{lot}{\contentsline {table}{\numberline {6}{\ignorespaces Z\IeC {\'a}vislos\IeC {\v t} relat\IeC {\'\i }vnej chyby heuristiky cena/v\IeC {\'a}ha od pomeru nosnos\IeC {\v t} batohu/suma v\IeC {\'a}h [\%]}}{7}}
+\newlabel{tab6}{{6}{7}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces Z\IeC {\'a}vislos\IeC {\v t} trvania behu algoritmov BB, DP a heuristiky od pomeru nosnos\IeC {\v t} vs. suma v\IeC {\'a}h}}{8}}
+\newlabel{gr:graf5}{{5}{8}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces Z\IeC {\'a}vislos\IeC {\v t} rel. chyby heuristiky cena/v\IeC {\'a}ha od pomeru nosnos\IeC {\v t}/suma v\IeC {\'a}h}}{8}}
+\newlabel{gr:graf6}{{6}{8}}
+\@writefile{toc}{\contentsline {section}{\numberline {6}Zhodnotenie}{8}}
+\@writefile{lot}{\contentsline {table}{\numberline {7}{\ignorespaces Z\IeC {\'a}vislos\IeC {\v t} trvania behu algoritmov BB,DP a heuristiky od exponentu granularity [s]}}{9}}
+\newlabel{tab7}{{7}{9}}
+\@writefile{lot}{\contentsline {table}{\numberline {8}{\ignorespaces Z\IeC {\'a}vislos\IeC {\v t} relat\IeC {\'\i }vnej chyby heuristiky cena/v\IeC {\'a}ha od exponentu granularity [\%]}}{9}}
+\newlabel{tab8}{{8}{9}}
+\@writefile{lof}{\contentsline {figure}{\numberline {7}{\ignorespaces Z\IeC {\'a}vislos\IeC {\v t} trvania behu algoritmov BB, DP a heuristiky od exponentu granularity}}{10}}
+\newlabel{gr:graf7}{{7}{10}}
+\@writefile{lof}{\contentsline {figure}{\numberline {8}{\ignorespaces Z\IeC {\'a}vislos\IeC {\v t} rel. chyby cena/v\IeC {\'a}ha od exponentu granularity}}{10}}
+\newlabel{gr:graf8}{{8}{10}}
+\@writefile{lot}{\contentsline {table}{\numberline {9}{\ignorespaces Porovnanie implementovan\IeC {\'y}ch algoritmov}}{11}}
+\newlabel{tab9}{{9}{11}}

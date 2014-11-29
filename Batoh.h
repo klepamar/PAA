@@ -24,10 +24,12 @@ private:
 	double *cv_cena_vaha_pomer;
 
 	bool *bb_best_array; // branch and bound; usporiadane polia na zaklade najlepsieho pomeru cena/vaha ako v pripade CV heuristiky
+	bool *bb_array;
 	char *bb_best_string;
 	int *bb_weight; 
 	int *bb_price;
 	int bb_best_price;
+	int bb_counter;
 
 	bool *dp_best_array; // dp = dynamic programming; najlepsie vysledky
 	int dp_best_weight;
@@ -40,6 +42,7 @@ private:
 	int **fptas_matrix;
 	int *fptas_price; // preratane pole cien jednotlivych predmetov
 	int fptas_price_sum;
+	int fptas_i;
 	
 	double bf_time; // trvanie jednotlivych variant
 	double cv_time;
@@ -60,6 +63,8 @@ public:
 	void generateAllSubsets (bool* array, int low, int high);
 	void bruteForce();
 	void heuristikaCenaVaha();
+	void branchAndBound2 ();
+	void branchAndBound2_r (int current_n, int current_weight, int current_price, int remain_price);
 	void branchAndBound();
 	float bound(Node *u);
 	void bbSearchForSpecialCase();
@@ -68,8 +73,12 @@ public:
 	void showDPMatrix() const;
 	void fptas(int no);
 	void fptasDP();
+	int getCMax();
 	
 	int getId() {return this->id;}
+	int getNo() {return this->no_of_elements;}
+	int getFptasI() {return this->fptas_i;}
+	int getBBCounter() {return this->bb_counter;}
 	int getBFPrice() {return this->bf_best_price;}
 	double getBFTime() {return this->bf_time;}
 	int getCVPrice() {return this->cv_best_price;}

@@ -21,10 +21,13 @@
 \hyphenation{ma-xi-mál-na}
 \hyphenation{al-go-rit-mus}
 \hyphenation{e-xakt-né-mu}
+\hyphenation{in-štan-cie}
+\hyphenation{na-me-ra-ných}
+\hyphenation{us-po-ria-da-ní}
 
 \begin{document}
 
-\title{Problém batohu - 2. úloha \\[5mm] MI-PAA, zimný semester 2014}
+\title{Problém batohu - 3. úloha \\[5mm] MI-PAA, zimný semester 2014}
 \author{Martin Klepáč}
 \date{\today}
 
@@ -44,7 +47,7 @@ Formálne, vstup vyjadríme pomocou
 
 \item \emph{M} = maximálna nosnosť batohu
 
-\item \emph{vektor v} = hmotnosť jednotlivých predmetov
+\item \emph{vektor w} = hmotnosť jednotlivých predmetov
 
 \item \emph{vektor c} = hodnota (cena) jednotlivých predmetov
 
@@ -53,137 +56,321 @@ Formálne, vstup vyjadríme pomocou
 Výstupom algoritmu je vektor \emph{x}, ktorý udáva prítomnosť/neprítomnosť daného predmetu vo výbere. Ďalej požadujeme informáciu o celkovej hmotnosti predmetov v batohu a ich súhrnú hodnotu pre najlepší výber.
 
 
-\section{Rozbor možných variant}
+\section{Úvod}
 
-V prvej úlohe sme problém batohu riešili hrubou silou, ktorá nám poskytla referenčné riešenie na úkor exponenciálnej zložitosti. Pre dosiahnutie približného výsledku sme ďalej realizovali heuristiku cena-váha, podľa ktorej sme pridávali elementy do batohu s najvyšším pomerom cena-váha, až kým nedošlo k presiahnutiu maximálnej nosnosti batohu.
+V tejto časti sa pozrieme na experimentálne vyhodnotenie výsledkov algoritmov, ktoré sme implementovali v predchádzajúcich dvoch iteráciách. Pre potreby tejto úlohy budeme uvažovať o algoritmoch dynamického programovania, branch and bound s použitím orezávania stavového priestoru a heuristika cena-váha. K tomu budeme potrebovať generátor náhodných inštancií, ktorý budeme parametrizovať tak, že v každom momente budeme meniť hodnotu práve 1 parametru a vštky ostatné zachováme konštantné.
 
-V druhej úlohe budeme riešiť problém batohu trojicou algoritmov. Konkrétne sa jedná o riešenie s použitím orezávania stavového priestoru (označované ako branch-and-bound), algoritmus dynamického programovania a v neposlednom rade algoritmus FPTAS. Zatiaľ čo prvé dve riešenia poskytujú exaktné výsledky, FPTAS podobne ako heuristika cena-váha predstavuje aproximatívne riešenie.
+\section{Predpoklady}
 
-Riešenie označované ako branch-and-bound je založené na myšlienke orezávania stavového priestoru. Pokiaľ máme k dispozicii určitý subvýber skladajúci sa z \emph{p} elementov za podmienky \emph{p<n}, potom za určitých okolností nemusíme riešiť všetky možné výbery, ktoré by z tohto subvýberu mohli vzniknúť. Jednou z týchto okolností môže byť fakt, že váha súčasných \emph{p} elementov prekračuje maximálnu nosnosť batohu, a teda akékoľvek riešenie pozostávajúce z takéhoto subvýberu je neplatné - orezávanie priestoru zvrchu. Častejšou variantou je orezávanie priestoru zo spodu, kde platí, že v prípade pridania všetkých zostávajúcich prvkov do existujúceho subvýberu, výsledná cena výberu bude nižšia ako existujúce maximum.
+Algoritmus dynamického programania z predchádzajúcej iterácie bol založený na dekompozícii podľa kapacity. Z toho vychádza, že pokiaľ budeme meniť hodnotu kapacity batohu, doba behu algoritmu by sa mala meniť lineárne - zložitosť je závislá lineárne ako na veľkosti inštancie, tak aj na nosnosti batohu - $O(nM)$
 
-Riešenie problému batohu metódou dynamického programovia je svojím spôsobom podobné rekurzívnemu riešeniu, ktoré som aplikoval v prvej úlohe, brute force algoritmus. Rekurzia a dynamické programovanie majú spoločný základ v rozklade problému na podproblémy. V čom sa zásadne líšia, je fakt, že rekurzíva subproblémy počíta opakovane, zatiaľ čo dynamické programovanie subproblém vypočíta raz a jeho výsledok si uloží do pamäťových štruktúr. Dynamické programovanie realizujeme pomocou dekompozície podľa kapacity.
+V prípade heuristiky cena-váha neočakávam, že doba behu je závislá na akomkoľvek parametri s výnimkou usporiadanosti vstupných dát, a to z toho dôvodu, že po usporiadaní algoritmus lineárne prechádza zoznamom predmetov, až kým nedôjde k naplneniu batohu. Dalo by sa namietať, že s menšou nosnosťou batohu sa doň zmestí menší počet vecí, a teda prechod poľom usporiadaných predmetov sa zrýchli. Vzhľadom na to, že zložitosť usporiadania $O(n\log{}n)$ je rádovo vyššia ako zložitosť prechodom poľa $O(n)$, je tento faktor zanedbateľný.
 
-Aproximatívne riešenie predstavuje algoritmus FPTAS, fully polynomial-time approximation scheme. FPTAS k svojmu behu využíva koncept dynamického programovania, riešenie subproblémov ukladá do pamäte. Jeho aproximácia spočíva v zanedbaní least significant bitov cien jednotlivých predmetov - tentokrát bolo potrebné realizovať algoritmus dynamického programovania dekompozíciou podľa ceny. Na rozdiel od heuristiky cena-váha, ktorá riešenie aproximuje, je možné FPTAS algoritmus parametrizovať, a tým de facto určovať mieru nepresnosti.
+Nakoniec, v prípade algoritmu branch and bound očakávam, že sa prejaví schopnosť efektívne orezať stavový priestor. To znamená, že v prípade obmedzenej nosnosti batohu voči váham predmetov dokáže algoritmus rýchlo odstrániť neperspektívne vetvy, a tým zrýchliť trvanie behu. 
 
-\section{Rámcový popis postupu}
-
-Začneme implementáciou riešenia branch-and-bound, následne postúpime k algoritmu dynamického programovania s dekompozíciou podľa kapacity batohu. Overíme, že obe riešenia poskytujú exaktné výsledky porovnaním s referenčným brute force algoritmom. Ďalej, implementujeme algoritmus FPTAS, ktorý interne využíva dynamické programovanie s použitím dekompozície podľa ceny. Pri tomto riešení budeme merať mieru nepresnosti v závislosti od parametru počtu bitov - \emph{i}, ktoré budeme zanedbávať v cene jednotlivých predmetov. V závere výsledky jednotlivých riešení zobrazíme ako v textovej podobe (tabuľka), tak vo forme príslušných grafov.
-
-
-\section{Popis kostry algoritmu}
-
-Algoritmus branch-and-bound je založený na prehľadávaní stavového priestoru, ktoré je realizované formou algoritmu BFS (breadth first search) s ukladaním prvkov do fronty. Potom každý prvok fronty predstavuje určitý subvýber, kde prvých \emph{i} elementov (\emph{i<n}) je daných, t.j. buď sa vo výbere nachádzajú alebo nenachádzajú, a o osude zvyšných \emph{(n-i)} elementov nie je zatiaľ rozhodnuté. Ľavý potomok elementu vyjadruje obsiahnutie ďalšieho prvku v subvýbere, zatiaľ čo pravý potomok elementu neobsahuje ďalší prvok v subvýbere. Vo výsledku tak budujeme binárny strom, ktorého hĺbka odpovedá počtu prvkov na vstupe. Pre každý uzol počítame jeho maximálny potenciálny profit - k váhe a cene existujúceho subvýberu pripočítavame ďalšie prvky na základe najvyššieho pomeru cena-váha, až kým nedôjde k pretrhnutiu batohu. Pokiaľ je maximálny potenciálny profit uzla menší ako aktuálne najvyššia dosiahnutá cena výberu, takýto subvýber označíme za neperspektívny (orezávanie zo spodu). Prerekvizitou tohto algoritmu je teda usporiadanie elementov podľa najlepšieho pomeru cena-váha zostupne.
-
-Druhé riešenie predstavuje algoritmus dynamického programovania s použitím dekompozície podľa kapacity. V ňom riešenie problému skladáme z už vyriešených subproblémov, ktorých výsledky uchovávame v 2D poli o veľkosti [\emph{počet prvkov + 1}] x [\emph{maximálna nosnosť batohu +1}]. Toto pole nám fakticky odpovedá na nasledujúcu otázku - pokiaľ máme k dispozícii prvých \emph{i} prvkov (\emph{i<=n}) a postupne sa zväčšujúcu kapacitu \emph{c} až do (\emph{c<=nosnosť batohu}), aká je maximálna dosiahnuteľná cena výberu? Výsledok teda nájdeme po vyplnení celého poľa na pozícii [\emph{počet prvkov}][\emph{nosnosť batohu}].
-
-Algoritmus FPTAS predstavuje posledné implementované riešenie problému batohu. Interne využíva algoritmus dynamického programovania s dekompozíciou podľa ceny, ktorý rieši inverzný problém batohu. K jeho implementácii potrebujeme 2D pole o veľkosti [\emph{počet prvkov + 1}][\emph{súčet cien prvkov na vstupe + 1}]. Potom sa pri riešení inverzného problému batohu snažíme minimalizovať výslednú váhu výberu, pokiaľ máme zadanú celkovú cenu výberu. Využitie algoritmu FPTAS spočíva v tom, že umelo znižuje ceny všetkých predmetov na vstupe (implementačne riešené posunom o \emph{i} bitov doprava, t.j. delením ceny hodnotou $2^i$), čím dochádza k zmenšeniu hore popísanej tabuľky. Po vyplnení tabuľky hľadáme s použitím všetkých prvkov prvú hmotnosť, ktorá je nižšia ako maximálna nosnosť batohu - príslušná cena potom predstavuje maximálnu cenu výberu s dodržaním pravidla o nosnosti batohu. Túto cenu potom spätne posunieme o \emph{i} bitov doľava, čo odpovedá vynásobeniu hodnotou $2^i$.
+V súvislosti s heuristikou cena-váha a charakterom predmetov vo výbere nie som schopný vysloviť žiadne predpoklady.
 
 \section{Výsledky}
 
-Opäť máme k dispozícii 64-bitový Linuxový host, na ktorom spúšťame kód napísaný v jazyku C++ pre všetky inštancie až do \emph{n=40}. Problém nastáva pri vyšších inštanciách v súvislosti s algoritmom branch-and-bound, pretože pre každé \emph{n} existuje inštancia, ktorá núti program prehľadať celý stavový priestor (nevzniká možnosť orezania neperspektívnych vetiev). Takéto prípady sa ukázali byť na testovanom stroji v rozumnom čase neriešiteľné z dôvodu toho, že program musí do fronty uložiť prakticky všetky možné subvýbery, čo bohužiaľ neumožňuje limitované množstvo pamäte (4 GB). Po zaplnení main memory preto dochádza k swapovaniu, ktoré výrazne zhoršuje výsledky aj v porovnaní s brute force algoritmom, ktorý sa celý pri porovnateľnej veľkosti inštancie zmestil do pamäte. Z tohto dôvodu bol voči daným vzorkám vytvorený špeciálny test, ktorý sa spustí pred samotným branch-and-bound algoritmom a ktorý nastaví dosiaľ najlepšie riešenie na cenu predmetu, ktorý sám zaberá celú kapacitu batohu.
+Školský generátor, pokiaľ nie je inak napísané, som spúšťal s nasledujúcimi parametrami:
 
-Výsledky sú uvedené v trojici tabuliek. Tabuľka \ref{tab1} zobrazuje absolútne časy trvania jednotlivých implementácií v závislosti od počtu prvkov na vstupe. Jedná sa o priemerné hodnoty spomedzi 50 inštancií pre každé \emph{n}. V tabuľke pre porovnanie uvádzam trvanie brute-force algoritmu do veľkosti inštancie \emph{n=30}. Tabuľky \ref{tab2} a \ref{tab3} zobrazujú priemernú relatívnu chybu resp. maximálnu chybu spomedzi 50 inštancií dosiahnutú algoritmom FPTAS(i) pre \emph{i=1..4}.
+\begin{itemize}
+\item \emph{m} = 0.5
+\item \emph{d} = 0
+\item \emph{k} = 1
+\item \emph{w-max} = 250
+\item \emph{c-max} = 250
+\item \emph{n} = 25
+\item \emph{N} = 300
+\end{itemize}
 
-Grafické vyjadrenie rovnakých dát prikladám ako obrázky \ref{gr:graf1} až \ref{gr:graf3}. Graf \ref{gr:graf1} zobrazuje priemerné trvanie behu jednotlivých implementácií z druhej úlohy, t.j. branch-and-bound, dynamické programovanie a FPTAS algoritmus s paremetrami \emph{i=0} až \emph{i=6} (do tabuľky \ref{tab1} sa mi nepodarilo z priestorových dôvodov zaniesť časy pre FPTAS(5) a FPTAS(6)). Na zobrazenie hodnôt na Y-osi som použil logaritmické merítko, pretože kým trvanie behu algoritmu branch-and-bound rastie s narastajúcou veľkosťou vzorky exponenciálne, ostatné funkcie rastú rádovo pomalšie. Graf \ref{gr:graf2} zobrazuje priemernú relatívnu chybu ceny výsledného výberu pri použití algoritmu FPTAS s parametrom \emph{i=1..6}. FPTAS s parametrom \emph{i=0} reprezentuje algoritmus dynamického programovania s použitím dekompozície podľa ceny, a teda poskytuje exaktné výsledky. Konečne, graf \ref{gr:graf3} zobrazuje maximálnu relatívnu chybu spomedzi 50 inštancií pre FPTAS(i) v rozmedzí \emph{i=0} až \emph{i=6}. Opäť, grafy \ref{gr:graf2} a \ref{gr:graf3} naviac obsahujú merania pre hodnoty FPTAS(5) a FPTAS(6).
+Na nasledujúcich riadkoch popíšem závislosti, ktoré som pomocou generátora objavil. Pre hore uvedenú trojicu algoritmov budem merať, ako sa mení priemerná doba behu, kým pre heuristiku cena-váha budem ďalej sledovať zmenu relatívnej chyby s meniacim sa parametrom. Závislosť na konkrétnom parametri vždy vyjadrím formou dvojice tabuliek a grafov.
 
-\begin{landscape}
-\begingroup
-\scriptsize
+V prvom kroku sme za variabilnú zložku určili \textbf{maximálnu váhu predmetu} na vstupe. Z grafu \ref{gr:graf1} je zrejmá lineárna závislosť zložitosti dynamického programovania na maximálnej váhe predmetu. Lineárna závislosť je dôsledkom dekompozície podľa kapacity batohu (viz kapitola Predpoklady) a ďalej tým, že nosnosť batohu je funkcia súčtu váh predmetov na vstupe. Trvanie metódy branch and bound a heuristiky vykazuje drobné fluktuácie, ale bez nejakého dlhodého trendu. Podobná úvaha platí pre relatívnu chybu heuristiky, ktorá sa pohybuje jemne nad pol percentom. Jemné zvýšenie rel. chyby nastáva pre \emph{w-max} sa približne rovná \emph{c-max}, t.j. vtedy keď pomer cena-váha pre jednotlivé predmety sa rovná 1. Relevantné grafy \ref{gr:graf1} a \ref{gr:graf2} a tabuľky \ref{tab1} a \ref{tab2}.
 
-\begin{table}\centering
-	\begin{tabularx}{\linewidth}{ | X | X | X | X | X | X | X | X | X |}
+\begin{table}[htb!]\centering
+	\begin{tabularx}{\textwidth}{ | X | X | X | X |}
 	  \hline                       
-					& 	\textbf{BF}	& \textbf{BB}	& \textbf{DP}		& \textbf{FPTAS(0)} 	& \textbf{FPTAS(1)}	& \textbf{FPTAS(2)}		& \textbf{FPTAS(3)}			& \textbf{FPTAS(4)}\\ \hline
-	  \textbf{n=4} 	& $6.79.10^{-7}$			& 0.000 003 	& 0.000 006	 		& 0.000 025			& 0.000 017			& 	0.000 013			& 0.000 007		&	0.000 003 	\\ \hline
-	  \textbf{n=10} & 0.000 270					& 0.000 042 	& 0.000 022 		& 0.000 273			& 0.000 160			& 	0.000 079			& 0.000 045 	&	0.000 018   \\ \hline
-	  \textbf{n=15} & 0.004 196					& 0.000 273 	& 0.000 057 		& 0.000 547			& 0.000 242			& 	0.000 196			& 0.000 101 	&	0.000 046	\\ \hline
-	  \textbf{n=20} & 0.140 290					& 0.001 459 	& 0.000 082 		& 0.000 842			& 0.000 421			& 	0.000 334			& 0.000 112 	&	0.000 078	\\ \hline
-	  \textbf{n=22} & 0.580 960					& 0.002 496 	& 0.000 096 		& 0.001 066 		& 0.000 701			& 	0.000 264 			& 0.000 151 	&	0.000 093	\\ \hline
-	  \textbf{n=25} & 4.828						& 0.009 033 	& 0.000 125 		& 0.001 371 		& 0.000 901			& 	0.000 506			& 0.000 168 	&	0.000 128	\\ \hline
-	  \textbf{n=27} & 19.584					& 0.025 800		& 0.000 184 	 	& 0.001 723 		& 0.001 122			& 	0.000 384			& 0.000 192 	&	0.000 144	\\ \hline
-	  \textbf{n=30} & 167.61					& 0.077 862		& 0.000 205		 	& 0.002 018			& 0.001 029			& 	0.000 490			& 0.000 246 	&	0.000 182	\\ \hline
-	  \textbf{n=32} & N/A						& 0.151 140		& 0.000 247		 	& 0.002 277			& 0.001 251			& 	0.000 791			& 0.000 261 	&	0.000 126	\\ \hline
-	  \textbf{n=35} & N/A						& 0.181 685		& 0.000 308		 	& 0.002 694			& 0.001 328			& 	0.000 900			& 0.000 319 	&	0.000 157	\\ \hline
-	  \textbf{n=37} & N/A						& 0.292 665		& 0.000 368		 	& 0.003 047			& 0.001 429			& 	0.000 843			& 0.000 339 	&	0.000 245	\\ \hline
-	  \textbf{n=40} & N/A						& 0.484 644		& 0.000 421 	 	& 0.003 556			& 0.001 709			& 	0.000 822			& 0.000 412 	&	0.000 210	\\ \hline
+							& \textbf{BB} 	& \textbf{DP} 	& \textbf{CV} 	\\ \hline
+		\textbf{w-max=40}	&	0.002 405	&	0.000 102	&	0.000 004 020	\\ \hline
+		\textbf{w-max=60}	&	0.002 726	&	0.000 153	&	0.000 004 520	\\ \hline
+		\textbf{w-max=80}	&	0.002 626	&	0.000 201	&	0.000 004 600	\\ \hline
+		\textbf{w-max=100}	&	0.002 750	&	0.000 249	&	0.000 004 610	\\ \hline
+		\textbf{w-max=125}	&	0.002 757	&	0.000 308	&	0.000 004 620	\\ \hline
+		\textbf{w-max=150}	&	0.003 343	&	0.000 353	&	0.000 004 880	\\ \hline
+		\textbf{w-max=175}	&	0.002 734	&	0.000 437	&	0.000 005 090	\\ \hline
+		\textbf{w-max=200}	&	0.002 957	&	0.000 507	&	0.000 005 020	\\ \hline
+		\textbf{w-max=250}	&	0.002 739	&	0.000 636	&	0.000 005 330	\\ \hline
+		\textbf{w-max=300}	&	0.002 606	&	0.000 765	&	0.000 005 010	\\ \hline
+		\textbf{w-max=350}	&	0.002 785	&	0.000 889	&	0.000 005 310	\\ \hline
+		\textbf{w-max=400}	&	0.002 653	&	0.001 025	&	0.000 005 330	\\ \hline
+		\textbf{w-max=450}	&	0.002 649	&	0.001 133	&	0.000 005 150	\\ \hline								
+		\textbf{w-max=500}	&	0.002 698	&	0.001 259	&	0.000 005 410	\\ \hline								
 	\end{tabularx}
-\caption{Priemerné trvanie behu v sekundách pre varianty brute-force (BF), branch-and-bound (BB), dynamického programovania (DP) s dekompozíciou podľa kapacity a FPTAS algoritmu s daným paremetrom \emph{i}}
+\caption{Závislosť trvania behu algoritmov BB,DP a heuristiky od maximálnej hmotnosti [s]}
 \label{tab1}
 \end{table}
-\endgroup
-\end{landscape}
 
-\begin{table}\centering
-	\begin{tabularx}{\textwidth}{ | X | X | X | X | X |}
+\begin{table}[htb!]\centering
+	\begin{tabularx}{\textwidth}{ | X | X | }
 	  \hline                       
-					& \textbf{FPTAS(1)} 	& \textbf{FPTAS(2)} & \textbf{FPTAS(3)} 	& \textbf{FPTAS(4)}\\ \hline
-	  \textbf{n=4} 	& 0.41 					& 1.05 				&  2.43 				& 5.09	\\ \hline
-	  \textbf{n=10} & 0.33 					& 1.04 				&  2.44 				& 5.06	\\ \hline
-	  \textbf{n=15} & 0.37 					& 1.16 				&  2.83 				& 5.75	\\ \hline
-	  \textbf{n=20} & 0.34 					& 1.02 				&  2.41 				& 5.40	\\ \hline
-	  \textbf{n=22} & 0.34 					& 1.05 				&  2.41 				& 5.09	\\ \hline
-	  \textbf{n=25} & 0.32 					& 0.99 				&  2.27 				& 5.04	\\ \hline
-	  \textbf{n=27} & 0.36 					& 1.03 				&  2.43 				& 5.14	\\ \hline
-	  \textbf{n=30} & 0.32 					& 0.98 				&  2.29 				& 5.04	\\ \hline
-	  \textbf{n=32} & 0.32 					& 0.96 				&  2.28 				& 4.94	\\ \hline
-	  \textbf{n=35} & 0.32 					& 0.96 				&  2.24 				& 4.93	\\ \hline
-	  \textbf{n=37} & 0.32 					& 0.99 				&  2.28 				& 4.95	\\ \hline
-	  \textbf{n=40} & 0.32 					& 0.99 				&  2.27 				& 4.89	\\ \hline
+							& \textbf{CV} 	\\ \hline
+		\textbf{w-max=40}	&	0.55638
+			\\ \hline
+		\textbf{w-max=60}	&	0.61646
+			\\ \hline
+		\textbf{w-max=80}	&	0.54155
+			\\ \hline
+		\textbf{w-max=100}	&	0.50933
+			\\ \hline
+		\textbf{w-max=125}	&	0.53428
+			\\ \hline
+		\textbf{w-max=150}	&	0.49504
+			\\ \hline
+		\textbf{w-max=175}	&	0.50213
+			\\ \hline
+		\textbf{w-max=200}	&	0.54508
+			\\ \hline
+		\textbf{w-max=250}	&	0.58260
+			\\ \hline
+		\textbf{w-max=300}	&	0.59298
+			\\ \hline
+		\textbf{w-max=350}	&	0.60938
+			\\ \hline
+		\textbf{w-max=400}	&	0.54125
+			\\ \hline
+		\textbf{w-max=450}	&	0.53188
+			\\ \hline								
+		\textbf{w-max=500}	&	0.52994
+			\\ \hline								
 	\end{tabularx}
-\caption{Priemerná relatívna odchýlka ceny výsledného výberu realizovaného FPTAS algoritmom v percentách}
+\caption{Závislosť relatívnej chyby heuristiky cena/váha od maximálnej hmotnosti [\%]}
 \label{tab2}
 \end{table}
 
-\begin{table}\centering
-	\begin{tabularx}{\textwidth}{ | X | X | X | X | X | }
-	  \hline                       
-				& \textbf{FPTAS(1)} 	& \textbf{FPTAS(2)} & \textbf{FPTAS(3)} & \textbf{FPTAS(4)}\\ \hline
-	  \textbf{n=4} 	& 2 	& 4 	&  12 		&	20 	\\ \hline
-	  \textbf{n=10} & 1.01 	& 3.03 	&  4.32 	&	9.18\\ \hline
-	  \textbf{n=15} & 0.67 	& 1.76 	&  4.50 	&	8.66\\ \hline
-	  \textbf{n=20} & 0.55 	& 1.50 	&  3.50 	&	7.51\\ \hline
-	  \textbf{n=22} & 0.57 	& 1.58 	&  3.64 	&	8.35\\ \hline
-	  \textbf{n=25} & 0.57 	& 1.42 	&  3.19 	&	6.89\\ \hline
-	  \textbf{n=27} & 0.59 	& 1.47 	&  3.35 	&	7.77\\ \hline
-	  \textbf{n=30} & 0.47 	& 1.47 	&  3.03 	&	7.26\\ \hline
-	  \textbf{n=32} & 0.58 	& 1.48 	&  3.26 	&	7.11\\ \hline
-	  \textbf{n=35} & 0.43 	& 1.38 	&  3.29 	&	7.08\\ \hline
-	  \textbf{n=37} & 0.54 	& 1.68 	&  3.45 	&	6.61\\ \hline
-	  \textbf{n=40} & 0.45 	& 1.43 	&  3.20 	&	6.10\\ \hline
-	\end{tabularx}
-\caption{Maximálna odchýlka ceny výsledného výberu realizovaného FPTAS algoritmom v percentách}
-\label{tab3}
-\end{table}
-
-
-\section{Diskusia}
-
-V druhej úlohe sme implementovali trojicu algoritmov. Zložitosť algoritmu branch-and-bound je exponenciálna a v najhoršom prípade môže viesť k prehľadaniu kompletného stavového priestoru. Vo väčšine prípadov však orezávanie zdola pomocou ceny (a v menšej miere zhora pomocou kapacity) vedie k výraznému zrýchleniu v porovnaní s pôvodným brute force algoritmom. Algoritmus dynamického programovania je založený na postupnom vyplňovaní tabuľky, pomocou ktorej riešenie problému skladáme z riešení subproblémov. Veľkosť tejto tabuľky sa líši v závislosti od použitého typu dekompozície. V mojom prípade som implementoval oba spôsoby, pod označením "dynamické programovanie" som využil dekompozíciu podľa kapacity, v algoritme FPTAS som využil dekompozíciu podľa ceny. Zložitosť algoritmu dynamického programovania je pseudo-polynomiálna, čím vyjadrujeme, že nezávisí výhradne nad počtom vstupných dát. Dynamické programovanie poskytuje presné výsledky. Naproti tomu algoritmus FPTAS neposkytuje exaktné výsledky, ale na druhej strane je realizovateľný v polynomiálnom čase a naviac je parametrizovateľný, t.j. mieru chyby si môžeme meniť. Napríklad, pri zanedbaní posledných 4 bitov cien predmetov došlo k relatívnej chybe približne 10 percent.
-
-\section{Literatúra}
-
-\begin{itemize}
-	\item Foundations of Algorithms Using C++ Pseudocode, Richard E. Neapolitan, Kumarss Naimipour
-	\item http://www.programming-techniques.com/2013/07/solving-knapsack-problem-using-dynamic.html
-\end{itemize}
-
-
-\begin{figure}\centering
-	\includegraphics[scale=0.8]{./cas.pdf}
-	\caption{Priemerné trvanie jednotlivých implementácií}
+\begin{figure}[htb!]\centering
+	\includegraphics[scale=0.8]{./3_1.pdf}
+	\caption{Závislosť trvania behu algoritmov BB, DP a heuristiky od max. hmotnosti}
 	\label{gr:graf1}
 \end{figure}
 
-\begin{figure}\centering
-	\includegraphics[scale=0.8]{./chyba.pdf}
-	\caption{Priemerná relatívna chyba algoritmu FPTAS(i)}
+\begin{figure}[htb!]\centering
+	\includegraphics[scale=0.8]{./3_2.pdf}
+	\caption{Závislosť rel. chyby heuristiky cena/váha od max. hmotnosti}
 	\label{gr:graf2}
 \end{figure}
 
-\begin{figure}\centering
-	\includegraphics[scale=0.8]{./chyba2.pdf}
-	\caption{Maximálna relatívna chyba algoritmu FPTAS(i)}
+V druhom kroku sledujeme efekt zvyšovania \textbf{maximálnej ceny predmetov}. V tomto prípade platí, že trvanie všetkých algoritmov je cenovo necitlivé. Iná situácia by nastala v prípade, ak by dynamické programovanie bolo implementované dekompozície podľa ceny. V tom prípade by sa ukázala lineárna závislosť trvania algoritmu od maximálnej ceny na vstupe, podobne ako to bolo v mojom prípade pre dekompozíciu podľa kapacity - viz predchádzajúci bod. Relatívne chyba heuristiky opäť fluktuuje mierne nad pol percentom, ale znovu sa nedá hovoriť o nejakej očividnej závislosti. Relevantné grafy \ref{gr:graf3} a \ref{gr:graf4} a tabuľky \ref{tab3} a \ref{tab4}.
+
+\begin{table}[htb!]\centering
+	\begin{tabularx}{\textwidth}{ | X | X | X | X |}
+	  \hline                       
+							& \textbf{BB} 	& \textbf{DP} 	& \textbf{CV} 	\\ \hline
+		\textbf{c-max=40}	&	0.002 798	&	0.000 659	&	0.000 005 380	\\ \hline
+		\textbf{c-max=60}	&	0.002 654	&	0.000 638	&	0.000 005 020	\\ \hline
+		\textbf{c-max=80}	&	0.002 572	&	0.000 637	&	0.000 005 040	\\ \hline
+		\textbf{c-max=100}	&	0.002 770	&	0.000 638	&	0.000 005 030	\\ \hline
+		\textbf{c-max=125}	&	0.002 867	&	0.000 640	&	0.000 005 060	\\ \hline
+		\textbf{c-max=150}	&	0.002 651	&	0.000 638	&	0.000 004 910	\\ \hline
+		\textbf{c-max=175}	&	0.002 611	&	0.000 634	&	0.000 004 940	\\ \hline
+		\textbf{c-max=200}	&	0.002 695	&	0.000 644	&	0.000 005 140	\\ \hline
+		\textbf{c-max=250}	&	0.002 573	&	0.000 641	&	0.000 005 080	\\ \hline
+		\textbf{c-max=300}	&	0.002 686	&	0.000 647	&	0.000 005 370	\\ \hline
+		\textbf{c-max=350}	&	0.002 861	&	0.000 637	&	0.000 005 080	\\ \hline
+		\textbf{c-max=400}	&	0.002 736	&	0.000 646	&	0.000 005 350	\\ \hline
+		\textbf{c-max=450}	&	0.002 790	&	0.000 655	&	0.000 005 500	\\ \hline								
+		\textbf{c-max=500}	&	0.002 686	&	0.000 650	&	0.000 005 460	\\ \hline								
+	\end{tabularx}
+\caption{Závislosť trvania behu algoritmov BB,DP a heuristiky od maximálnej ceny [s]}
+\label{tab3}
+\end{table}
+
+\begin{table}[htb!]\centering
+	\begin{tabularx}{\textwidth}{ | X | X | }
+	  \hline                       
+							& \textbf{CV} 	\\ \hline
+		\textbf{c-max=40}	&	0.56719
+			\\ \hline
+		\textbf{c-max=60}	&	0.5142
+			\\ \hline
+		\textbf{c-max=80}	&	0.55552
+			\\ \hline
+		\textbf{c-max=100}	&	0.47242
+			\\ \hline
+		\textbf{c-max=125}	&	0.63001
+			\\ \hline
+		\textbf{c-max=150}	&	0.49272
+			\\ \hline
+		\textbf{c-max=175}	&	0.61052
+			\\ \hline
+		\textbf{c-max=200}	&	0.50114
+			\\ \hline
+		\textbf{c-max=250}	&	0.55035
+			\\ \hline
+		\textbf{c-max=300}	&	0.54376
+			\\ \hline
+		\textbf{c-max=350}	&	0.54897
+			\\ \hline
+		\textbf{c-max=400}	&	0.59871
+			\\ \hline
+		\textbf{c-max=450}	&	0.55344
+			\\ \hline								
+		\textbf{c-max=500}	&	0.56539
+			\\ \hline								
+	\end{tabularx}
+\caption{Závislosť relatívnej chyby heuristiky cena/váha od maximálnej ceny [\%]}
+\label{tab4}
+\end{table}
+
+V treťom kroku monitorujeme závislosť trvania behu resp. relatívnej chyby algoritmov od hodnoty prepínača generátora inštancií \emph{m}, ktorý vyjadruje \textbf{pomer medzi kapacitou batohu a súčtom váh} predmetov na vstupe. Graf \ref{gr:graf6} ukazuje klesajúcu chybu heuristiky v závislosti od narastajúceho pomeru. Teda, čím sa do batohu zmestí relatívne väčší počet predmetov, tým je chyba heuristiky nižšia (limitne sa blíži k nule, pretože každý predmet sa do batohu zlepší). Dynamické programovanie vykazuje lineárny rast - opäť je to spôsobené lineárne sa zvyšujúcou kapacitou batohu, podobne ako tomu bolo pri maximálnej váhe. Algoritmus branch and bound dokáže pri nízkom pomere kapacity batohu a sume váh predmetov efektívne orezať statový priestor, ale táto vlastnosť sa s narastajúcim pomerom zhoršuje, čoho výsledkom je exponenciálny rast doby behu pre nízke \emph{m}. Relevantné grafy \ref{gr:graf5} a \ref{gr:graf6} a tabuľky \ref{tab5} a \ref{tab6}.
+
+\begin{figure}[htb!]\centering
+	\includegraphics[scale=0.8]{./3_3.pdf}
+	\caption{Závislosť trvania behu algoritmov BB. DP a heuristiky od max. ceny }
 	\label{gr:graf3}
 \end{figure}
+
+\begin{figure}[htb!]\centering
+	\includegraphics[scale=0.8]{./3_4.pdf}
+	\caption{Závislosť rel. chyby heuristiky cena/váha od max. ceny}
+	\label{gr:graf4}
+\end{figure}
+
+\begin{table}[htb!]\centering
+	\begin{tabularx}{\textwidth}{ | X | X | X | X |}
+	  \hline                       
+							& \textbf{BB} 	& \textbf{DP} 	& \textbf{CV} 	\\ \hline
+		\textbf{pomer=0.1}	&	0.000 039		&		0.000 1055		&	0.000 003 880			\\ \hline
+		\textbf{pomer=0.2}	&	0.000 143		&		0.000 2274		&	0.000 003 950			\\ \hline
+		\textbf{pomer=0.3}	&	0.000 447		&		0.000 3523		&	0.000 004 120			\\ \hline
+		\textbf{pomer=0.4}	&	0.001 156		&		0.000 4783		&	0.000 004 170			\\ \hline
+		\textbf{pomer=0.5}	&	0.002 673		&		0.000 6507		&	0.000 005 520			\\ \hline
+		\textbf{pomer=0.6}	&	0.004 853		&		0.000 7976		&	0.000 006 050			\\ \hline
+		\textbf{pomer=0.7}	&	0.007 638		&		0.000 9356		&	0.000 006 200			\\ \hline
+		\textbf{pomer=0.8}	&	0.009 888		&		0.001 0469		&	0.000 006 060			\\ \hline
+		\textbf{pomer=0.9}	&	0.010 618		&		0.001 1860		&	0.000 006 360			\\ \hline
+	\end{tabularx}
+\caption{Závislosť trvania behu algoritmov BB,DP a heuristiky od pomeru nosnosť/suma váh [s]}
+\label{tab5}
+\end{table}
+
+\begin{table}[htb!]\centering
+	\begin{tabularx}{\textwidth}{ | X | X | }
+	  \hline                       
+							& \textbf{CV} 	\\ \hline
+		\textbf{pomer=0.1}	&	1.4738
+			\\ \hline
+		\textbf{pomer=0.2}	&	1.0519
+			\\ \hline
+		\textbf{pomer=0.3}	&	0.97004
+			\\ \hline
+		\textbf{pomer=0.4}	&	0.78315
+			\\ \hline
+		\textbf{pomer=0.5}	&	0.49983
+			\\ \hline
+		\textbf{pomer=0.6}	&	0.3608
+			\\ \hline
+		\textbf{pomer=0.7}	&	0.22867
+			\\ \hline
+		\textbf{pomer=0.8}	&	0.17306
+			\\ \hline
+		\textbf{pomer=0.9}	&	0.084475
+			\\ \hline
+	\end{tabularx}
+\caption{Závislosť relatívnej chyby heuristiky cena/váha od pomeru nosnosť batohu/suma váh [\%]}
+\label{tab6}
+\end{table}
+
+\begin{figure}[htb!]\centering
+	\includegraphics[scale=0.8]{./3_5.pdf}
+	\caption{Závislosť trvania behu algoritmov BB, DP a heuristiky od pomeru nosnosť vs. suma váh}
+	\label{gr:graf5}
+\end{figure}
+
+\begin{figure}[htb!]\centering
+	\includegraphics[scale=0.8]{./3_6.pdf}
+	\caption{Závislosť rel. chyby heuristiky cena/váha od pomeru nosnosť/suma váh}
+	\label{gr:graf6}
+\end{figure}
+
+Ako posledný faktor budeme meniť \textbf{granularitu dát} pomocou parametra \emph{k} pre prevahu veľkých vecí (\emph{d=1}). Platí, že čím väčšia hodnota tohto parametra, tým je menšia pravdepodobnosť malých dát na vstupe. Z toho vyplýva, že so zvyšujúcim sa počtom veľkých predmetov (narastajúce \emph{k}) rastie zároveň aj nosnosť batohu, a teda opäť dochádza k rastu doby behu metódy dynamického programovania. Naopak, doba behu algoritmu branch and bound klesá približne exponenciálne s narastajúcim počtom veľkých predmetov na vstupe až do fázy, v ktorej beží rýchlejšie ako dynamické programovanie. Beh heuristiky, ako tomu bolo vo všetkých predchádzajúcich prípadoch, nie je závislý na granularite vstupných dát. S narastajúcou hodnotou váh predmetov ale dochádza k zmenšovaniu relatívnych chýb až k hodnote 0.1 percenta. Relevantné grafy \ref{gr:graf7} a \ref{gr:graf8} a tabuľky \ref{tab7} a \ref{tab8}.
+
+\begin{table}[htb!]\centering
+	\begin{tabularx}{\textwidth}{ | X | X | X | X |}
+	  \hline                       
+							& \textbf{BB} 	& \textbf{DP} 	& \textbf{CV} 	\\ \hline
+		\textbf{exp=0.1}	&	0.002 830		&	0.000 755		&	0.000 005 560			\\ \hline
+		\textbf{exp=0.2}	&	0.002 815		&	0.000 770		&	0.000 005 580			\\ \hline
+		\textbf{exp=0.4}	&	0.002 304		&	0.000 828		&	0.000 005 350			\\ \hline
+		\textbf{exp=0.6}	&	0.001 931		&	0.000 939		&	0.000 005 480			\\ \hline
+		\textbf{exp=0.8}	&	0.001 636		&	0.001 026		&	0.000 005 460			\\ \hline
+		\textbf{exp=1}		&	0.001 269		&	0.001 076		&	0.000 005 380			\\ \hline
+		\textbf{exp=1.5}	&	0.000 972		&	0.001 185		&	0.000 005 440			\\ \hline
+		\textbf{exp=2}		&	0.000 800		&	0.001 259		&	0.000 005 600			\\ \hline
+		\textbf{exp=2.5}	&	0.000 785		&	0.001 321		&	0.000 005 360			\\ \hline
+		\textbf{exp=3}		&	0.000 754		&	0.001 301		&	0.000 005 550			\\ \hline
+		\textbf{exp=4}		&	0.000 665		&	0.001 197		&	0.000 004 760			\\ \hline
+	\end{tabularx}	
+\caption{Závislosť trvania behu algoritmov BB,DP a heuristiky od exponentu granularity [s]}
+\label{tab7}
+\end{table}
+
+\begin{table}[htb!]\centering
+	\begin{tabularx}{\textwidth}{ | X | X | }
+	  \hline                       
+							& \textbf{CV} 	\\ \hline
+		\textbf{exp=0.1}	&	0.57106
+			\\ \hline
+		\textbf{exp=0.2}	&	0.55837
+			\\ \hline
+		\textbf{exp=0.4}	&	0.56664
+			\\ \hline
+		\textbf{exp=0.6}	&	0.53169
+			\\ \hline
+		\textbf{exp=0.8}	&	0.61671
+			\\ \hline
+		\textbf{exp=1}		&	0.53568
+			\\ \hline
+		\textbf{exp=1.5}	&	0.45679
+			\\ \hline
+		\textbf{exp=2}		&	0.45407
+			\\ \hline
+		\textbf{exp=2.5}	&	0.14103
+			\\ \hline
+		\textbf{exp=3}		&	0.29805
+			\\ \hline
+		\textbf{exp=4}		&	0.12878
+			\\ \hline
+	\end{tabularx}
+\caption{Závislosť relatívnej chyby heuristiky cena/váha od exponentu granularity [\%]}
+\label{tab8}
+\end{table}
+
+\begin{figure}[htb!]\centering
+	\includegraphics[scale=0.8]{./3_7.pdf}
+	\caption{Závislosť trvania behu algoritmov BB, DP a heuristiky od exponentu granularity}
+	\label{gr:graf7}
+\end{figure}
+
+\begin{figure}[htb!]\centering
+	\includegraphics[scale=0.8]{./3_8.pdf}
+	\caption{Závislosť rel. chyby cena/váha od exponentu granularity}
+	\label{gr:graf8}
+\end{figure}
+
+\section{Zhodnotenie}
+
+\begin{table}[htb!]\centering
+	\begin{tabularx}{\textwidth}{ | X | X | X | X |}
+	  \hline                       
+		\textbf{Algoritmus}			& \textbf{Presnosť} 	& \textbf{Rýchlosť} 	& \textbf{Hodnotenie} 	\\ \hline
+		\textbf{Brute force}		& absolútna				&	pomalá (exponenciálna)		&	poskytuje exaktné, referenčné riešenie, nepoužiteľné pre väčšie inštancie 			\\ \hline
+		\textbf{Dynamické programovanie (dekompozícia podľa kapacity)}		& absolútna				&	rýchla (pseudopolynomálna)		&	pamäťovo náročná, závislá na hmotnosti predmetov			\\ \hline
+		\textbf{Branch and bound}	& absolútna				&	rýchla, ale závislá na charaktere vstupných dát (v najhoršom prípade rovnaká ako brute force)	& 	efektívna pokiaľ kapacita batohu výrazne menšia ako suma váh predmetov		\\ \hline
+		\textbf{Heuristika cena-váha}& vysoká (chyba maximálne v rámci jednotiek percent)				&	rýchla, nezávislá od charakteru vstupných dát		&	efektívna, ak sa do batohu zmestí veľké percento predmetov			\\ \hline
+	\end{tabularx}	
+\caption{Porovnanie implementovaných algoritmov}
+\label{tab9}
+\end{table}
 
 \end{document}

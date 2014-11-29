@@ -43,6 +43,7 @@ Batoh::Batoh (int id, int no_of_elements, int max_weight)
 	this->bb_best_price=0; // branch & bound algoritmus
 	this->bb_weight = new int [this->no_of_elements];
 	this->bb_price = new int [this->no_of_elements];
+	this->bb_array = new bool [this->no_of_elements];
 	this->bb_best_array = new bool [this->no_of_elements];
 	this->bb_best_string = new char [this->no_of_elements];
 	for (int i=0; i<this->no_of_elements; i++)
@@ -81,6 +82,7 @@ Batoh::~Batoh()
 	delete [] this->dp_best_array;
 	
 	delete [] this->bb_best_string;
+	delete [] this->bb_array;
 	
 	for (int i=0; i<=this->no_of_elements; i++)
 	{
@@ -92,6 +94,16 @@ Batoh::~Batoh()
 	delete [] this->fptas_price;
 	delete [] this->fptas_best_array;
 
+}
+
+int Batoh::getCMax()
+{
+	int cmax;
+	for (int i=0; i< this->no_of_elements; i++)
+	{
+		cmax += this->price[i];
+	}
+	return cmax;
 }
 
 void Batoh::fillInformation (istream &in)
@@ -281,6 +293,7 @@ void Batoh::heuristikaCenaVaha()
 	for (int i=0; i<this->no_of_elements; i++)
 	{
 		this->cena_vaha_pomer[i] = ((double)this->price[i] / this->weight[i]); // cast the first operand to double so that the entire result is double	
+		//cout << "ID: " << i << "\tPrice: " << this->price[i] << "\tWeight: " << this->weight[i] << "\tPomer CV: " << this->cena_vaha_pomer[i] << endl;
 	}
 	ABC *abc = new ABC [this->no_of_elements]; // temporary array of objects
 	for (int i=0; i<this->no_of_elements; i++) // copy values of price, weight and cena_vaha_pomer to the array of ABC objects
@@ -298,6 +311,12 @@ void Batoh::heuristikaCenaVaha()
 		this->cv_cena_vaha_pomer[i] = abc[i].abc_cena_vaha_pomer;
 		this->cv_id[i] = abc[i].abc_id; // identifikator, na ktorom indexe sa v povodnom nachadza dany objekt
 	}
+	
+/*	cout << "=== SORTED ARRAY ===\n";
+	for (int i=0; i<this->no_of_elements; i++)
+	{
+		cout << "ID: " << abc[i].abc_id << "\tPrice: " << abc[i].abc_price << "\tWeight: " << abc[i].abc_weight << "\tPomer CV: " << abc[i].abc_cena_vaha_pomer << endl;
+	}*/
 	
 	for (int i=0; i<this->no_of_elements; i++)
 	{
@@ -417,6 +436,8 @@ void Batoh::fptas(int no)
 {
 	double start,end;
 	start=omp_get_wtime(); // start measuring time
+	
+	this->fptas_i=no;
 	
 	// prepocitanie cien jednotlivych predmetov; posunutie o "no" bitov doprava
 	// vypocet sumy cien jednotlivych predmetov
@@ -543,6 +564,59 @@ void Batoh::bbObtainBestArray()
 	}
 }
 
+void Batoh::branchAndBound2 ()
+{
+	double start,end;
+	start=omp_get_wtime(); // start measuring time
+	
+	int remain;
+	
+	for (int i=0; i<this->no_of_elements; i++)
+	{
+		this->bb_array[i] = 0;
+		this->bb_best_array[i] = 0;
+		remain += this->price[i];
+	}
+	this->bb_best_price = 0;
+	
+	branchAndBound2_r (0,0,0,remain);
+	
+    end=omp_get_wtime(); // end of time measurement
+	this->bb_time=end-start;	
+}
+
+void Batoh::branchAndBound2_r (int current_n, int current_weight, int current_price, int remain_price)
+{
+	if (current_weight > this->max_weight)
+		return;
+	
+	if (current_price + remain_price < this->bb_best_price)
+		return;
+		
+	if (current_n < this->no_of_elements)
+	{
+		this->bb_array[current_n] = 1;
+		branchAndBound2_r (current_n+1, current_weight + this->weight[current_n], current_price + this->price[current_n], remain_price - this->price[current_n]);
+		this->bb_counter++;
+		
+		this->bb_array[current_n] = 0;
+		branchAndBound2_r (current_n+1, current_weight, current_price, remain_price - this->price[current_n]);
+		this->bb_counter++;
+	}
+	else
+	{
+		if (current_price > this->bb_best_price)
+		{
+			for (int i=0; i<this->no_of_elements; i++)
+			{
+				this->bb_best_array[i] = this->bb_array[i];
+			}
+			this->bb_best_price = current_price;
+		}
+	}
+	return;
+}
+
 void Batoh::branchAndBound()
 {
 	double start,end;
@@ -561,9 +635,7 @@ void Batoh::branchAndBound()
  
 	// vykonaj kontrolu na vstup; v pripade ak najdes element, ktoreho vaha = nostnosti batohu, zapamataj si jeho cenu ako bb_best_price
 	bbSearchForSpecialCase();
-	
-	int cnt=0;
- 
+
  
     assert(Q.empty()); // inicializuj frontu
  
@@ -603,7 +675,7 @@ void Batoh::branchAndBound()
         if (potentialProfit > this->bb_best_price) // ak potencionalny profit laveho potomka > dosial najvacsi profit (=bb_best_price) => pridaj do fronty laveho potomka; 
         {
             Q.push(left); // ak potencialny profit laveho potomka < dosial najvacsi profit => realizuj orezavania ZO SPODKU (=dany vyber nebude nikdy lepsi ako dosial najlepsi vyber)
-            cnt++;
+            this->bb_counter++;
         }
  
 		// "right" = pravy potomok elementu z fronty
@@ -621,7 +693,7 @@ void Batoh::branchAndBound()
         if (potentialProfit > this->bb_best_price) // ak potencialny profit praveho potomka > dosial najvacsi profit (=bb_best_price) => pridaj do fronty praveho potomka
         {
             Q.push(right); // ak potencialny profit praveho potomka < dosial najvacsi profit => realizuj orezavanie ZO SPODKU (=dany vyber nebude nikdy lepsi ako dosial najlepsi vyber)
-            cnt++;
+            this->bb_counter++;
         }
 		delete parent;
     }
